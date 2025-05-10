@@ -1,0 +1,32 @@
+#c++ compiled files
+*.o
+*.bin
+*.asm
+*.elf
+*.hex 
+
+    
+#python 
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+*.DS_Store
+
+
+#eagle temp files
+*.s#*
+*.b#* 
+
+#auxliary files
+*.bkp
+*.aux
+
+
+*.mp4
