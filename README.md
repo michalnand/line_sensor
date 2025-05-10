@@ -1,9 +1,15 @@
 # i2c sensor for line follower
 
+- 10x analog readed sensor
+- stm32f051 48MHz arm cortex m0 mcu
+- i2c interface, with FFC cable
+- uart, swdio availible for debug
+
 ![image](doc/images/top_3d.png)
 ![image](doc/images/top.png)
 ![image](doc/images/bottom.png)
 ![image](doc/images/board.png)
+![image](doc/images/schem.png)
 
 
 # usage
