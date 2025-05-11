@@ -288,7 +288,7 @@ typedef struct
 /** @defgroup ADC_channels 
   * @{
   */ 
-  
+
 #define ADC_Channel_0                              ADC_CHSELR_CHSEL0
 #define ADC_Channel_1                              ADC_CHSELR_CHSEL1
 #define ADC_Channel_2                              ADC_CHSELR_CHSEL2

@@ -2,7 +2,6 @@
 #define _MEM_H_
 
 
-
 unsigned int mem_init();
 unsigned int mem_get_ptr();
 

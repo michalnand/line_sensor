@@ -2,11 +2,13 @@
 
 typedef unsigned int size_t;
 
+
 extern unsigned int __data_start__;
 extern unsigned int __ram_size__;
 extern unsigned int __heap_start__;
 
 unsigned char *mem_ptr;
+
 
 
 unsigned int mem_init()
@@ -18,7 +20,7 @@ unsigned int mem_init()
 unsigned int mem_get_ptr()
 {
     return (unsigned int)mem_ptr;
-}
+}   
 
 void *malloc(size_t size)
 {

@@ -8,7 +8,7 @@ void adc_init()
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 
     ADC_DeInit(ADC1);
-    
+
     /* Initialize ADC structure */
     ADC_StructInit(&ADC_InitStructure);
     
@@ -21,7 +21,7 @@ void adc_init()
     ADC_Init(ADC1, &ADC_InitStructure); 
     
     
-    ADC_ChannelConfig(ADC1, ADC_Channel_4, ADC_SampleTime_28_5Cycles);
+    ADC_ChannelConfig(ADC1, ADC_Channel_0, ADC_SampleTime_28_5Cycles);
 
 
     /* ADC Calibration */
