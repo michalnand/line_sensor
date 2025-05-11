@@ -20,8 +20,8 @@
 <layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
@@ -40,10 +40,10 @@
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="no" active="yes"/>
 <layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
-<layer number="48" name="Document" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="50" name="dxf" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="50" name="dxf" color="7" fill="1" visible="no" active="yes"/>
 <layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="53" name="tGND_GNDA" color="7" fill="9" visible="no" active="no"/>
@@ -177,8 +177,7 @@
 <wire x1="106" y1="28" x2="106" y2="43" width="0" layer="20"/>
 <wire x1="2" y1="43" x2="2" y2="28" width="0" layer="20"/>
 <wire x1="41" y1="38" x2="41" y2="-1" width="0" layer="20"/>
-<wire x1="54" y1="18" x2="54" y2="52.5" width="0.1" layer="51"/>
-<circle x="54" y="-103" radius="150" width="0.1" layer="51"/>
+<wire x1="54" y1="17.5" x2="54" y2="51.5" width="0.1" layer="47"/>
 <wire x1="2" y1="43" x2="106" y2="43" width="0" layer="20" curve="-37.809152"/>
 <wire x1="2" y1="28" x2="41" y2="38" width="0" layer="20" curve="-14.888615"/>
 <wire x1="67" y1="38" x2="106" y2="28" width="0" layer="20" curve="-14.909998"/>
@@ -223,6 +222,20 @@
 <text x="53.34" y="6.4008" size="1.016" layer="25" rot="R270">sda</text>
 <text x="55.7784" y="6.4008" size="1.016" layer="25" rot="R270">scl</text>
 <text x="58.2168" y="6.4008" size="1.016" layer="25" rot="R270">3v3</text>
+<dimension x1="41" y1="-1" x2="67" y2="-1" x3="54" y3="-10" textsize="1.778" layer="47"/>
+<dimension x1="58.5" y1="-1" x2="54" y2="51.5" x3="114.5" y3="25.25" textsize="1.778" layer="47" dtype="vertical"/>
+<dimension x1="2" y1="43" x2="106" y2="42.5" x3="54" y3="55.5" textsize="1.778" layer="47" dtype="horizontal"/>
+<wire x1="68" y1="17.5" x2="40" y2="17.5" width="0.1" layer="47"/>
+<dimension x1="39.5" y1="17.5" x2="53.5" y2="51.5" x3="83" y3="34.5" textsize="1.778" layer="47" dtype="vertical"/>
+<dimension x1="45" y1="3" x2="63" y2="3" x3="54" y3="-5" textsize="1.778" layer="47" dtype="horizontal"/>
+<dimension x1="61.9" y1="4" x2="64.3" y2="2.2" x3="59.86" y3="-1.22" textsize="1.778" layer="47" dtype="diameter"/>
+<dimension x1="45" y1="3" x2="45" y2="13" x3="36.5" y3="8" textsize="1.778" layer="47" dtype="vertical"/>
+<dimension x1="45" y1="13" x2="45" y2="22" x3="36.5" y3="17.5" textsize="1.778" layer="47" dtype="vertical"/>
+<text x="70.5" y="42" size="1.778" layer="47">r = 150</text>
+<wire x1="106" y1="37.5" x2="2" y2="37.5" width="0.1524" layer="47" curve="40.619604"/>
+<dimension x1="67" y1="-1" x2="67" y2="38" x3="31" y3="18.5" textsize="1.778" layer="47" dtype="vertical"/>
+<dimension x1="68" y1="17.5" x2="67" y2="38" x3="70.5" y3="27.75" textsize="1.778" layer="47" dtype="vertical"/>
+<dimension x1="106" y1="28" x2="106" y2="43" x3="109" y3="35.5" textsize="1.778" layer="47" dtype="vertical"/>
 </plain>
 <libraries>
 <library name="micro-stm_v3">
