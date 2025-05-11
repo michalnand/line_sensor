@@ -42,6 +42,10 @@ int main(void)
     LineSensor line_sensor;
     line_sensor.init();
 
+    //line_sensor.set_mode(LED_CONSTANT);
+    //line_sensor.set_mode(LED_ALTERNATE);
+    line_sensor.set_mode(LED_RNG);
+
     while (1)
     {
       for (unsigned int i = 0; i < SENSORS_COUNT; i++)

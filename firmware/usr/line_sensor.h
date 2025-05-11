@@ -10,18 +10,31 @@
 
 #define SENSORS_COUNT   ((uint32_t)2)
 
+
+enum LEDModulationMode
+{
+    LED_CONSTANT,
+    LED_ALTERNATE,
+    LED_RNG
+};
+
 class LineSensor
 {
     public:
         void init();
-        
+        void set_mode(LEDModulationMode mode);
+
         uint32_t callback(int32_t value);
 
     private:
+        void _init_vars();
+        
         void _gpio_init();
         void _nvic_init();
         void _adc_init();
+        
         bool _next_led_state();
+
         uint8_t _lfsr_rnd();
 
     private:
@@ -30,6 +43,8 @@ class LineSensor
         uint32_t channel, state;
 
         uint32_t lfsr;
+
+        LEDModulationMode mode;
 
 
     public:

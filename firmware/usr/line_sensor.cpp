@@ -37,26 +37,7 @@ void LineSensor::init()
 {
     g_line_sensor = this;
 
-    led_control = 0;
-    
-    this->state         = 0;
-    this->led_state     = false;
-    this->channel       = 0;
-
-
-    this->led_control   = 0;
-
-    this->lfsr = 0xA5A5A5A5;
-
-
-    for (unsigned int i = 0; i < SENSORS_COUNT; i++)
-    {
-        this->led_off_result[i]     = 4096;
-        this->led_on_result[i]      = 0;
-        this->led_dif_result[i]     = 0;
-        this->led_dif_fil_result[i] = 0;
-    }
-
+    this->_init_vars();
 
     this->_gpio_init();
     this->_adc_init();
@@ -66,6 +47,12 @@ void LineSensor::init()
 }
 
 
+void LineSensor::set_mode(LEDModulationMode mode)
+{
+    this->_init_vars();
+
+    this->mode = mode;
+}
 
 uint32_t LineSensor::callback(int32_t value)
 {
@@ -124,6 +111,31 @@ uint32_t LineSensor::callback(int32_t value)
     return this->channel;
 }
 
+
+
+void LineSensor::_init_vars()
+{
+    this->led_control = 0;
+    
+    this->state         = 0;
+    this->led_state     = false;
+    this->channel       = 0;
+
+
+    this->led_control   = 0;
+
+    this->mode = LED_ALTERNATE;
+
+    this->lfsr = 0xA5A5A5A5;
+
+    for (unsigned int i = 0; i < SENSORS_COUNT; i++)
+    {
+        this->led_off_result[i]     = 4096;
+        this->led_on_result[i]      = 0;
+        this->led_dif_result[i]     = 0;
+        this->led_dif_fil_result[i] = 0;
+    }
+}
 
 void LineSensor::_gpio_init(void) 
 {
@@ -201,14 +213,22 @@ void LineSensor::_adc_init()
 }
 
 
+
 bool LineSensor::_next_led_state()
 {
-    //return true;
-    
-    //lfsr++;
-    //return (lfsr%2);
-
-    return _lfsr_rnd();
+    if (this->mode == LED_CONSTANT)
+    {
+        return true;
+    }
+    else if (this->mode == LED_ALTERNATE)
+    {
+        lfsr++;
+        return (lfsr%2);
+    }
+    else
+    {
+        return _lfsr_rnd();
+    }
 }
 
 
