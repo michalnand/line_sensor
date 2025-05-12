@@ -5,7 +5,13 @@
 - i2c interface, with FFC cable
 - uart, swdio availible for debug
 
+
+# hardware
+
+
 ![image](doc/images/top_3d.png)
+![image](doc/images/dims.png)
+
 ![image](doc/images/top.png)
 ![image](doc/images/bottom.png)
 ![image](doc/images/board.png)

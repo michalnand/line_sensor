@@ -36,6 +36,7 @@ class LineSensor
         bool _next_led_state();
 
         uint8_t _lfsr_rnd();
+        void _processing();
 
     private:
         Gpio<TGPIOB, 4, GPIO_MODE_OUT> led_control;
@@ -50,6 +51,10 @@ class LineSensor
     public:
         int32_t led_off_result[SENSORS_COUNT];
         int32_t led_on_result[SENSORS_COUNT];
+        
+        int32_t led_off_fil_result[SENSORS_COUNT];
+        int32_t led_on_fil_result[SENSORS_COUNT];
+
         int32_t led_dif_result[SENSORS_COUNT];
         int32_t led_dif_fil_result[SENSORS_COUNT];
 };

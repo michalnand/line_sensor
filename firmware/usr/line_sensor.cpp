@@ -54,6 +54,7 @@ void LineSensor::set_mode(LEDModulationMode mode)
     this->mode = mode;
 }
 
+
 uint32_t LineSensor::callback(int32_t value)
 {
     if (this->state == 0)
@@ -73,12 +74,8 @@ uint32_t LineSensor::callback(int32_t value)
         this->channel       = 0;
         this->state         = 1;
 
-        int32_t filter_coeff = 7;
-        for (unsigned int i = 0; i < SENSORS_COUNT; i++)
-        {
-            this->led_dif_result[i]     = this->led_off_result[i] - this->led_on_result[i];
-            this->led_dif_fil_result[i] = (filter_coeff*this->led_dif_fil_result[i] + this->led_dif_result[i])/(filter_coeff+1);
-        }
+
+        this->_processing();
     }
 
     // waiting states
@@ -89,8 +86,6 @@ uint32_t LineSensor::callback(int32_t value)
     // read channels state
     else
     {
-
-
         if (this->led_state)
         {
             this->led_on_result[this->channel] = value;
@@ -132,6 +127,10 @@ void LineSensor::_init_vars()
     {
         this->led_off_result[i]     = 4096;
         this->led_on_result[i]      = 0;
+
+        this->led_off_fil_result[i] = 4096;
+        this->led_on_fil_result[i]  = 0;
+
         this->led_dif_result[i]     = 0;
         this->led_dif_fil_result[i] = 0;
     }
@@ -239,4 +238,25 @@ uint8_t LineSensor::_lfsr_rnd()
     uint8_t lfsr_bit = ((lfsr >> 31) ^ (lfsr >> 21) ^ (lfsr >> 1) ^ (lfsr >> 0)) & 1;
     lfsr = (lfsr << 1) | lfsr_bit;
     return lfsr_bit;
+}
+
+
+
+void LineSensor::_processing()
+{
+    // filter results
+    int32_t filter_coeff = 7;
+            
+    for (unsigned int i = 0; i < SENSORS_COUNT; i++)
+    {
+        this->led_off_fil_result[i] = (filter_coeff*this->led_off_fil_result[i] + this->led_off_result[i])/(filter_coeff+1);
+        this->led_on_fil_result[i]  = (filter_coeff*this->led_on_fil_result[i]  + this->led_on_result[i])/(filter_coeff+1);
+    }
+
+    // compute difference
+    for (unsigned int i = 0; i < SENSORS_COUNT; i++)
+    {
+        this->led_dif_result[i]     = this->led_off_result[i]       - this->led_on_result[i];
+        this->led_dif_fil_result[i] = this->led_off_fil_result[i]   - this->led_on_fil_result[i];
+    }
 }
