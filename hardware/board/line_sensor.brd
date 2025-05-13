@@ -6,20 +6,20 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.5" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="5" altunitdist="mil" altunit="mil"/>
+<grid distance="0.5" unitdist="mm" unit="mm" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="mil"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
-<layer number="20" name="Dimension" color="24" fill="1" visible="yes" active="yes"/>
+<layer number="20" name="Dimension" color="12" fill="1" visible="yes" active="yes"/>
 <layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
@@ -30,8 +30,8 @@
 <layer number="34" name="bFinish" color="6" fill="6" visible="no" active="yes"/>
 <layer number="35" name="tGlue" color="7" fill="4" visible="no" active="yes"/>
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="yes"/>
-<layer number="37" name="tTest" color="7" fill="1" visible="no" active="yes"/>
-<layer number="38" name="bTest" color="7" fill="1" visible="no" active="yes"/>
+<layer number="37" name="tTest" color="49" fill="1" visible="yes" active="yes"/>
+<layer number="38" name="bTest" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="yes" active="yes"/>
 <layer number="40" name="bKeepout" color="1" fill="11" visible="yes" active="yes"/>
 <layer number="41" name="tRestrict" color="4" fill="10" visible="yes" active="yes"/>
@@ -236,6 +236,19 @@
 <dimension x1="67" y1="-1" x2="67" y2="38" x3="31" y3="18.5" textsize="1.778" layer="47" dtype="vertical"/>
 <dimension x1="68" y1="17.5" x2="67" y2="38" x3="70.5" y3="27.75" textsize="1.778" layer="47" dtype="vertical"/>
 <dimension x1="106" y1="28" x2="106" y2="43" x3="109" y3="35.5" textsize="1.778" layer="47" dtype="vertical"/>
+<text x="47.5" y="28.5" size="1.778" layer="37">3V3</text>
+<text x="60" y="16" size="1.778" layer="37" rot="R90">3V3</text>
+<text x="47.5" y="31" size="1.778" layer="37">BOOT</text>
+<text x="47.5" y="33.5" size="1.778" layer="37">RESET</text>
+<text x="47.5" y="36" size="1.778" layer="37">GND</text>
+<text x="30" y="36" size="1.778" layer="37">UART_TX</text>
+<text x="30" y="33.5" size="1.778" layer="37">UART_RX</text>
+<text x="30" y="31" size="1.778" layer="37">SWDIO</text>
+<text x="30" y="29" size="1.778" layer="37">SWCLK</text>
+<text x="49.5" y="16" size="1.778" layer="37" rot="R90">GND</text>
+<text x="52.5" y="16" size="1.778" layer="37" rot="R90">RESET</text>
+<text x="55" y="16" size="1.778" layer="37" rot="R90">SDA</text>
+<text x="57.5" y="16" size="1.778" layer="37" rot="R90">SCL</text>
 </plain>
 <libraries>
 <library name="micro-stm_v3">
