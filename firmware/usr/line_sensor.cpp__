@@ -1,0 +1,183 @@
+#include "line_sensor.h"
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+LineSensor *g_line_sensor;
+
+void ADC1_COMP_IRQHandler(void) 
+{
+    //read value
+    if (ADC_GetITStatus(ADC1, ADC_IT_EOC)) 
+    {
+        int32_t value = ADC_GetConversionValue(ADC1);
+
+        // Clear interrupt flag
+        ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
+        
+        uint32_t current_channel = g_line_sensor->callback(value);
+        
+        // Set next input        
+        ADC_ChannelConfig(ADC1, current_channel, ADC_SampleTime_239_5Cycles);
+        ADC1->CHSELR = current_channel;
+
+        // Restart conversion
+        ADC_StartOfConversion(ADC1);
+    }
+
+}
+#ifdef __cplusplus
+}
+#endif
+
+LineSensor::LineSensor()
+{
+
+}
+
+void LineSensor::init()
+{
+    g_line_sensor = this;
+
+    /*
+    this->channels[0] = ADC_Channel_0;
+    this->channels[1] = ADC_Channel_1;
+    this->channels[2] = ADC_Channel_2;
+    this->channels[3] = ADC_Channel_3;
+    this->channels[4] = ADC_Channel_4;
+    this->channels[5] = ADC_Channel_5;
+    this->channels[6] = ADC_Channel_6;
+    this->channels[7] = ADC_Channel_7;
+    this->channels[8] = ADC_Channel_8;
+    this->channels[9] = ADC_Channel_9;
+    */
+
+    this->channels[0] = ADC_Channel_0;
+    this->channels[1] = ADC_Channel_1;
+    this->channels[2] = ADC_Channel_2;
+    this->channels[3] = ADC_Channel_3;
+    this->channels[4] = ADC_Channel_4;
+    this->channels[5] = ADC_Channel_5;  
+    this->channels[6] = ADC_Channel_6;
+    this->channels[7] = ADC_Channel_7;
+    this->channels[8] = ADC_Channel_8;
+    this->channels[9] = ADC_Channel_9;
+
+    
+    this->_init_vars();
+
+    this->_gpio_init(); 
+    this->_adc_init();
+    this->_nvic_init();
+
+    ADC_StartOfConversion(ADC1); 
+}
+
+
+void LineSensor::set_mode(LEDModulationMode mode)
+{
+    
+}
+
+
+uint32_t LineSensor::callback(int32_t value)
+{
+    this->led_off_result[this->channel_id] = value;
+
+    this->channel_id = (this->channel_id + 1)%(SENSORS_COUNT);
+
+    return this->channels[this->channel_id];
+}
+
+
+
+void LineSensor::_init_vars()
+{
+    this->led_control = 0;
+   
+    this->channel_id       = 0;
+
+
+    for (unsigned int i = 0; i < SENSORS_COUNT; i++)
+    {
+        this->led_off_result[i]     = 1234;
+    }
+       
+}
+
+void LineSensor::_gpio_init(void) 
+{
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+
+    
+    // ADC_IN0 - ADC_IN7 are on GPIOA0 - GPIOA7
+    // ADC_IN8 - ADC_IN9 are on GPIOB0 - GPIOB1
+
+    GPIO_InitTypeDef gpio;
+    gpio.GPIO_Mode = GPIO_Mode_AN;
+    gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+    // GPIOA0-A7
+    gpio.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
+    GPIO_Init(GPIOA, &gpio);
+
+    // GPIOB0-B1
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+    gpio.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
+    GPIO_Init(GPIOB, &gpio);
+}
+
+
+
+void LineSensor::_nvic_init() 
+{
+    NVIC_InitTypeDef nvic;
+    nvic.NVIC_IRQChannel = ADC1_COMP_IRQn;
+    nvic.NVIC_IRQChannelPriority = 3;
+    nvic.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&nvic);
+}
+
+
+void LineSensor::_adc_init() 
+{
+    ADC_InitTypeDef ADC_InitStructure;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+
+    ADC_DeInit(ADC1);
+
+    // Initialize ADC structure
+    ADC_StructInit(&ADC_InitStructure);
+    
+    // Configure the ADC1 in continuous mode with a resolution equal to 12 bits
+    ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+    ADC_InitStructure.ADC_ContinuousConvMode = DISABLE; 
+    ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+    ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+    ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Upward;
+    ADC_Init(ADC1, &ADC_InitStructure); 
+
+    
+    ADC_ChannelConfig(ADC1, ADC_Channel_0, ADC_SampleTime_239_5Cycles);
+
+
+    // ADC Calibration
+    ADC_GetCalibrationFactor(ADC1);
+
+    // End of conversion interrupt
+    ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE); 
+
+    // Enable the ADC peripheral
+    ADC_Cmd(ADC1, ENABLE);     
+    
+    // Wait the ADRDY flag
+    while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY))
+    {
+        __asm("nop");
+    }
+}
+
+

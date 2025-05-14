@@ -11,8 +11,8 @@ MIDDLEWARE_PATH		= $(LIBS_EMBEDDED_PATH)/middleware/
 GCCPREFIX	=arm-none-eabi-
 OUTPUT	 	=bin/build
 
-#TARGET 	= -mcpu=cortex-m0 -mthumb -DSTM32F051 -DUSE_STDPERIPH_DRIVER
-TARGET 		= -mcpu=cortex-m0 -mthumb -DSTM32F042 -DUSE_STDPERIPH_DRIVER
+TARGET 	= -mcpu=cortex-m0 -mthumb -DSTM32F051 -DUSE_STDPERIPH_DRIVER
+#TARGET 		= -mcpu=cortex-m0 -mthumb -DSTM32F042 -DUSE_STDPERIPH_DRIVER
 LDSCRIPT 	= ./libs/device/ldscript.ld
 
 INC+= -I $(STD_PERIPH_PATH)/inc/

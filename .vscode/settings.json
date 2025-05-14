@@ -12,6 +12,8 @@
         "tuple": "cpp",
         "__memory": "cpp",
         "__threading_support": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "*.cpp_": "cpp",
+        "*.cpp__": "cpp"
     }
 }

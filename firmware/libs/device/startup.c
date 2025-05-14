@@ -44,7 +44,7 @@ void TS_IRQHandler()                    __attribute__ ((weak, alias("Default_Han
 void DMA1_Channel1_IRQHandler()         __attribute__ ((weak, alias("Default_Handler")));
 void DMA1_Channel2_3_IRQHandler()       __attribute__ ((weak, alias("Default_Handler")));
 void DMA1_Channel4_5_IRQHandler()       __attribute__ ((weak, alias("Default_Handler")));
-void ADC1_IRQHandler()                  __attribute__ ((weak, alias("Default_Handler")));
+void ADC1_COMP_IRQHandler()             __attribute__ ((weak, alias("Default_Handler")));
 void TIM1_BRK_UP_TRG_COM_IRQHandler()   __attribute__ ((weak, alias("Default_Handler")));
 void TIM1_CC_IRQHandler()               __attribute__ ((weak, alias("Default_Handler")));
 void TIM2_IRQHandler()                  __attribute__ ((weak, alias("Default_Handler")));
@@ -61,7 +61,7 @@ void SPI2_IRQHandler()                  __attribute__ ((weak, alias("Default_Han
 void USART1_IRQHandler()                __attribute__ ((weak, alias("Default_Handler")));
 void USART2_IRQHandler()                __attribute__ ((weak, alias("Default_Handler")));
 void CEC_IRQHandler()                   __attribute__ ((weak, alias("Default_Handler")));
-void BootRAM()                          __attribute__ ((weak, alias("Default_Handler")));
+
 
 
 
@@ -98,7 +98,7 @@ void (* const InterruptVector[])() __attribute__ ((section(".isr_vector"), align
     DMA1_Channel1_IRQHandler,
     DMA1_Channel2_3_IRQHandler,
     DMA1_Channel4_5_IRQHandler,
-    ADC1_IRQHandler,
+    ADC1_COMP_IRQHandler,
     TIM1_BRK_UP_TRG_COM_IRQHandler,
     TIM1_CC_IRQHandler,
     TIM2_IRQHandler,
@@ -117,8 +117,7 @@ void (* const InterruptVector[])() __attribute__ ((section(".isr_vector"), align
     USART2_IRQHandler,
     0,
     CEC_IRQHandler,
-    0,
-    BootRAM
+    0
 };
 
 #include "device.h"
