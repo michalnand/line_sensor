@@ -10349,6 +10349,10 @@ DIN A4, landscape with location and doc. field</description>
 <plain>
 </plain>
 <instances>
+<instance part="IC1" gate="MCU" x="38.1" y="137.16" smashed="yes">
+<attribute name="NAME" x="33.02" y="172.72" size="1.778" layer="95"/>
+<attribute name="VALUE" x="33.02" y="99.06" size="1.778" layer="96"/>
+</instance>
 <instance part="IC1" gate="PWR" x="137.16" y="33.02" smashed="yes"/>
 <instance part="+3V1" gate="G$1" x="134.62" y="58.42" smashed="yes">
 <attribute name="VALUE" x="132.08" y="53.34" size="1.778" layer="96" rot="R90"/>
@@ -10933,6 +10937,7 @@ DIN A4, landscape with location and doc. field</description>
 <wire x1="139.7" y1="55.88" x2="139.7" y2="50.8" width="0.1524" layer="91"/>
 </segment>
 <segment>
+<pinref part="IC1" gate="MCU" pin="VDDA"/>
 <pinref part="+3V3" gate="G$1" pin="+3V3"/>
 <wire x1="15.24" y1="111.76" x2="10.16" y2="111.76" width="0.1524" layer="91"/>
 </segment>
@@ -11099,6 +11104,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC0" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA0-WKUP"/>
 <wire x1="60.96" y1="104.14" x2="66.04" y2="104.14" width="0.1524" layer="91"/>
 <label x="66.04" y="104.14" size="1.778" layer="95"/>
 </segment>
@@ -11114,6 +11120,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC1" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA1"/>
 <wire x1="60.96" y1="106.68" x2="66.04" y2="106.68" width="0.1524" layer="91"/>
 <label x="66.04" y="106.68" size="1.778" layer="95"/>
 </segment>
@@ -11129,6 +11136,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC2" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA2"/>
 <wire x1="60.96" y1="109.22" x2="63.5" y2="109.22" width="0.1524" layer="91"/>
 <wire x1="63.5" y1="109.22" x2="66.04" y2="109.22" width="0.1524" layer="91"/>
 <label x="66.04" y="109.22" size="1.778" layer="95"/>
@@ -11145,6 +11153,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC3" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA3"/>
 <wire x1="60.96" y1="111.76" x2="66.04" y2="111.76" width="0.1524" layer="91"/>
 <label x="66.04" y="111.76" size="1.778" layer="95"/>
 </segment>
@@ -11160,6 +11169,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC4" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA4"/>
 <wire x1="60.96" y1="114.3" x2="66.04" y2="114.3" width="0.1524" layer="91"/>
 <label x="66.04" y="114.3" size="1.778" layer="95"/>
 </segment>
@@ -11175,6 +11185,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC5" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA5"/>
 <wire x1="60.96" y1="116.84" x2="66.04" y2="116.84" width="0.1524" layer="91"/>
 <label x="66.04" y="116.84" size="1.778" layer="95"/>
 </segment>
@@ -11190,6 +11201,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC6" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA6"/>
 <wire x1="60.96" y1="119.38" x2="66.04" y2="119.38" width="0.1524" layer="91"/>
 <label x="66.04" y="119.38" size="1.778" layer="95"/>
 </segment>
@@ -11205,6 +11217,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC7" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA7"/>
 <wire x1="60.96" y1="121.92" x2="66.04" y2="121.92" width="0.1524" layer="91"/>
 <label x="66.04" y="121.92" size="1.778" layer="95"/>
 </segment>
@@ -11220,6 +11233,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC8" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PB0"/>
 <wire x1="60.96" y1="147.32" x2="66.04" y2="147.32" width="0.1524" layer="91"/>
 <label x="66.04" y="147.32" size="1.778" layer="95"/>
 </segment>
@@ -11235,6 +11249,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADC9" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PB1"/>
 <wire x1="60.96" y1="149.86" x2="66.04" y2="149.86" width="0.1524" layer="91"/>
 <label x="66.04" y="149.86" size="1.778" layer="95"/>
 </segment>
@@ -11250,6 +11265,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="BOOT" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="BOOT0"/>
 <wire x1="15.24" y1="104.14" x2="7.62" y2="104.14" width="0.1524" layer="91"/>
 <label x="12.7" y="104.14" size="1.778" layer="95" rot="R180"/>
 </segment>
@@ -11266,6 +11282,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="UART_TX" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA9"/>
 <wire x1="60.96" y1="127" x2="66.04" y2="127" width="0.1524" layer="91"/>
 <label x="66.04" y="127" size="1.778" layer="95"/>
 </segment>
@@ -11277,6 +11294,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="UART_RX" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA10"/>
 <wire x1="60.96" y1="129.54" x2="66.04" y2="129.54" width="0.1524" layer="91"/>
 <label x="66.04" y="129.54" size="1.778" layer="95"/>
 </segment>
@@ -11288,6 +11306,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="SDA" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PB6"/>
 <wire x1="60.96" y1="162.56" x2="66.04" y2="162.56" width="0.1524" layer="91"/>
 <label x="66.04" y="162.56" size="1.778" layer="95"/>
 </segment>
@@ -11319,6 +11338,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="SCL" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PB7"/>
 <wire x1="60.96" y1="165.1" x2="66.04" y2="165.1" width="0.1524" layer="91"/>
 <label x="66.04" y="165.1" size="1.778" layer="95"/>
 </segment>
@@ -11350,6 +11370,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="RESET" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="NRST"/>
 <wire x1="15.24" y1="106.68" x2="7.62" y2="106.68" width="0.1524" layer="91"/>
 <label x="12.7" y="106.68" size="1.778" layer="95" rot="R180"/>
 </segment>
@@ -11399,6 +11420,7 @@ DIN A4, landscape with location and doc. field</description>
 <label x="111.76" y="91.44" size="1.778" layer="95"/>
 </segment>
 <segment>
+<pinref part="IC1" gate="MCU" pin="PB2"/>
 <wire x1="60.96" y1="152.4" x2="66.04" y2="152.4" width="0.1524" layer="91"/>
 <label x="66.04" y="152.4" size="1.778" layer="95"/>
 </segment>
@@ -11519,6 +11541,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="SWDIO" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA13"/>
 <wire x1="60.96" y1="137.16" x2="66.04" y2="137.16" width="0.1524" layer="91"/>
 <label x="66.04" y="137.16" size="1.778" layer="95"/>
 </segment>
@@ -11530,6 +11553,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="SWCLK" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA14"/>
 <wire x1="60.96" y1="139.7" x2="66.04" y2="139.7" width="0.1524" layer="91"/>
 <label x="66.04" y="139.7" size="1.778" layer="95"/>
 </segment>
@@ -11546,6 +11570,7 @@ DIN A4, landscape with location and doc. field</description>
 <label x="53.34" y="76.2" size="1.778" layer="95"/>
 </segment>
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA8"/>
 <wire x1="60.96" y1="124.46" x2="66.04" y2="124.46" width="0.1524" layer="91"/>
 <label x="66.04" y="124.46" size="1.778" layer="95"/>
 </segment>
@@ -11559,6 +11584,7 @@ DIN A4, landscape with location and doc. field</description>
 </net>
 <net name="ADR" class="0">
 <segment>
+<pinref part="IC1" gate="MCU" pin="PA15"/>
 <wire x1="60.96" y1="142.24" x2="66.04" y2="142.24" width="0.1524" layer="91"/>
 <label x="66.04" y="142.24" size="1.778" layer="95"/>
 </segment>

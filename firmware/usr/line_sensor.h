@@ -8,6 +8,7 @@
 #include <adc.h>
 
 
+
 #define SENSORS_COUNT           ((uint32_t)10)
 #define SENSORS_WAIT_STATES     ((uint32_t)5)
 
@@ -27,6 +28,7 @@ class LineSensor
 
         void init();
         void set_mode(LEDModulationMode mode);
+        void set_filter(uint8_t value);
 
         uint32_t callback(int32_t value);
 
@@ -45,6 +47,8 @@ class LineSensor
     private:
         Gpio<TGPIOB, 2, GPIO_MODE_OUT> led_control;
         bool led_state;
+
+        int32_t filter_coeff;
         uint32_t channel, state;
 
         uint32_t lfsr;
@@ -54,7 +58,6 @@ class LineSensor
 
     public:
         int32_t led_off_result[SENSORS_COUNT];
-        
         int32_t led_on_result[SENSORS_COUNT];
         
         int32_t led_off_fil_result[SENSORS_COUNT];

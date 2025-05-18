@@ -67,7 +67,7 @@ unsigned char I2C_Interface::read_reg(unsigned char dev_adr, unsigned char reg_a
 {
   unsigned char res;
 
-  start();
+  start();  
   write(dev_adr);  // slave address, write command
   write(reg_adr);  // send reg address
 

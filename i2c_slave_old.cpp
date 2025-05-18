@@ -16,8 +16,7 @@ extern "C" {
 
 volatile uint8_t g_i2c_state;
 volatile uint8_t g_selected_reg;
-volatile uint8_t g_regs[I2C_MEM_SIZE];
-volatile bool    g_writing_flag;
+volatile uint8_t g_regs[256];
 
 
 
@@ -58,20 +57,13 @@ void I2C1_IRQHandler(void)
             g_selected_reg = data;
             g_i2c_state = I2C_STATE_DATA_RX;
         }
-        else
-        {
-            g_regs[g_selected_reg] = data;
-            g_writing_flag         = true;
-
-            //g_selected_reg++; 
-        }
     }
 
-    // master continues to read more bytes — optional autoincrement
+    // Master continues to read more bytes — optional autoincrement
     if (isr & I2C_ISR_TXIS)
     {
         I2C1->TXDR = g_regs[g_selected_reg];
-        //g_selected_reg++; 
+        // Optional: g_selected_reg++;  // auto-increment if desired
     }
 
     // End of transaction
@@ -92,8 +84,6 @@ void I2CSlave::init()
 {
     g_i2c_slave = this;
 
-    this->regs = (uint8_t*)g_regs;
-
     _data_init();
     _gpio_init();
     _slave_init();
@@ -101,16 +91,14 @@ void I2CSlave::init()
 
 void I2CSlave::_data_init()
 {
-    g_i2c_state      = I2C_STATE_WAITING;
+    g_i2c_state = I2C_STATE_WAITING;
     g_selected_reg   = 0;
-    g_writing_flag   = 0;
 
     for (uint32_t i = 0; i < I2C_MEM_SIZE; i++)
     {
-        g_regs[i] = 0;
+        g_regs[i] = 100;
     }
 
-    /*
     g_regs[10] = 3;
     g_regs[11] = 1;
     g_regs[12] = 4;
@@ -121,8 +109,6 @@ void I2CSlave::_data_init()
     g_regs[17] = 6;
     g_regs[18] = 5;
     g_regs[19] = 8;
-    */
-    
 }
 
 void I2CSlave::_gpio_init()
@@ -169,18 +155,6 @@ void I2CSlave::_slave_init()
     I2C_ITConfig(I2C1, I2C_IT_ADDRI | I2C_IT_RXI | I2C_IT_TXI | I2C_IT_STOPI, ENABLE);
 }
 
-bool I2CSlave::is_write_flag()
-{
-    bool result = false;
-
-    if (g_writing_flag)
-    {
-        result = true;
-        g_writing_flag = false;
-    }
-
-    return result;
-}
 
 void I2CSlave::write_reg(uint8_t reg_adr, uint8_t value)
 {

@@ -59,6 +59,11 @@ void LineSensor::set_mode(LEDModulationMode mode)
     this->mode = mode;
 }
 
+void LineSensor::set_filter(uint8_t value)
+{   
+    this->filter_coeff = value;
+}
+
 
 uint32_t LineSensor::callback(int32_t value)
 {
@@ -120,6 +125,7 @@ void LineSensor::_init_vars()
     this->state         = 0;
     this->led_state     = false;
     this->channel       = 0;
+    this->filter_coeff  = 7;
 
 
     this->mode = LED_ALTERNATE;
@@ -167,7 +173,7 @@ void LineSensor::_nvic_init()
 {
     NVIC_InitTypeDef nvic;
     nvic.NVIC_IRQChannel = ADC1_COMP_IRQn;
-    nvic.NVIC_IRQChannelPriority = 1;
+    nvic.NVIC_IRQChannelPriority = 2;
     nvic.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&nvic);
 }
@@ -208,8 +214,8 @@ void LineSensor::_adc_init()
         __asm("nop");
     }
 
-     // End of conversion interrupt
-     ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE); 
+    // End of conversion interrupt
+    ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE); 
 }
 
 
@@ -250,7 +256,7 @@ uint8_t LineSensor::_lfsr_rnd()
 void LineSensor::_processing()
 {
     // filter results
-    int32_t filter_coeff = 7;
+    int32_t filter_coeff = this->filter_coeff;
             
     for (unsigned int i = 0; i < SENSORS_COUNT; i++)
     {
@@ -265,7 +271,7 @@ void LineSensor::_processing()
         this->led_dif_fil_result[i] = this->led_off_fil_result[i]   - this->led_on_fil_result[i];
     }
 
-    // clipi min max range
+    // clip min max range
     for (unsigned int i = 0; i < SENSORS_COUNT; i++)
     {
         if (this->led_dif_result[i] < 0)

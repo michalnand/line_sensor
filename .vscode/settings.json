@@ -14,6 +14,8 @@
         "__threading_support": "cpp",
         "sstream": "cpp",
         "*.cpp_": "cpp",
-        "*.cpp__": "cpp"
+        "*.cpp__": "cpp",
+        "*.h__": "cpp",
+        "__locale": "cpp"
     }
 }
