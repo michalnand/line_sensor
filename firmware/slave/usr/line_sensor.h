@@ -40,9 +40,9 @@ class LineSensor
         uint8_t _lfsr_rnd();
         void _processing();
 
-    private:
-        //Gpio<TGPIOB, 2, GPIO_MODE_OUT> led_control;
-        Gpio<TGPIOB, 6, GPIO_MODE_OUT> led_control;
+    public:
+        Gpio<TGPIOB, 2, GPIO_MODE_OUT> led_control;
+        //Gpio<TGPIOB, 6, GPIO_MODE_OUT> led_control;
         bool led_state;
 
         int32_t filter_coeff;

@@ -28,10 +28,11 @@ int main()
     i2c.buffer[0x15] = 9;
     i2c.buffer[0x16] = 2;
 
-    //LineSensor line_sensor;
-    //line_sensor.init();
+    LineSensor line_sensor;
+    line_sensor.init();
     //line_sensor.set_mode(LED_ALTERNATE);
     //line_sensor.set_mode(LED_ON);
+    line_sensor.set_mode(LED_RNG);
 
     
     while (1)
