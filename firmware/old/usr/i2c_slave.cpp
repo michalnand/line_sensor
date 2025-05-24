@@ -12,14 +12,10 @@ extern "C" {
 #define I2C_STATE_DATA_RX	    ((uint8_t)2)    // waiting for incomming data
 #define I2C_STATE_DATA_TX	    ((uint8_t)3)    // waiting for sending data
 
-
-
 volatile uint8_t g_i2c_state;
 volatile uint8_t g_selected_reg;
 volatile uint8_t g_regs[I2C_MEM_SIZE];
 volatile bool    g_writing_flag;
-
-
 
 void I2C1_IRQHandler(void)
 {
