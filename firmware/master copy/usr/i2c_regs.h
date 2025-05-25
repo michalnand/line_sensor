@@ -26,6 +26,5 @@
 
 
 #define WHO_AM_I_VALUE    ((uint8_t)171)
-#define LS_DATA_SIZE      ((uint8_t)10)
 
 #endif

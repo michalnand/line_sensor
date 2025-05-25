@@ -282,22 +282,9 @@ bool LineSensor::_next_led_state()
 // Generate next bit (0 or 1)
 uint8_t LineSensor::_lfsr_rnd() 
 {
-    
-    // XOR taps: bits 31, 21, 1, 0 (0-indexed)
-    uint8_t lfsr_bit = ((lfsr >> 31) ^ (lfsr >> 21) ^ (lfsr >> 1) ^ (lfsr >> 0)) & 1;
-    lfsr = (lfsr << 1) | lfsr_bit;
-    return lfsr_bit;
-    
-    
-    /*
     // 4bit LFSR
     uint8_t bit = ((lfsr >> 3) ^ (lfsr >> 2)) & 1; // taps: 4 and 3
     lfsr = ((lfsr << 1) | bit) & 0x0F; // Keep only lower 4 bits
-    */
-
-    // 5bit LFSR
-    //uint8_t bit = ((lfsr >> 4) ^ (lfsr >> 2)) & 1; // taps: 5 and 3
-    //lfsr = ((lfsr << 1) | bit) & 0x1F; // Keep only lower 5 bits
     
     return lfsr&1;
 }

@@ -12,12 +12,13 @@ class I2CSlave
 {
     public:
         void init();
+        uint8_t is_write_flag();
 
     private:
         void _i2c_init();
 
     public:
-        uint8_t ptr, state;
+        uint8_t wr_flag, ptr, state;
 
     public:
         uint8_t buffer[I2C_BUFFER_SIZE];
