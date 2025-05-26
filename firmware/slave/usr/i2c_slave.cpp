@@ -1,156 +1,11 @@
 #include "i2c_slave.h"
 
-#include "stm32g0xx_ll_gpio.h"
-#include "stm32g0xx_ll_i2c.h"
-#include "stm32g0xx_ll_bus.h"
-#include "stm32g0xx_ll_rcc.h"
-#include "stm32g0xx_ll_system.h"
-#include "stm32g0xx_ll_utils.h"
-#include "stm32g0xx_ll_cortex.h"
-
-
-
-
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 I2CSlave *g_i2c_ptr;
-
-/*
-void I2C1_IRQHandler()
-{
-    uint32_t isr = I2C1->ISR;
-
-    // Address matched
-    if (isr & I2C_ISR_ADDR) 
-    {
-        I2C1->ICR |= I2C_ICR_ADDRCF;    
-        
-        // master reading from slave
-        if (I2C1->ISR & I2C_ISR_DIR)  
-        {
-            // preload register for sending to master
-            // this is must done here
-            I2C1->TXDR = g_i2c_ptr->buffer[g_i2c_ptr->ptr];
-            g_i2c_ptr->ptr++;
-
-            g_i2c_ptr->state = 2;
-        }
-        else
-        {
-            // master is writing to slave — prepare to receive register address
-            g_i2c_ptr->state = 1;
-        }
-
-        // toogle debug led
-        GPIOC->ODR ^= (1 << 6);
-    }
-
-    
-
-    // Data received from master (master write)
-    if (isr & I2C_ISR_RXNE) 
-    {
-        uint8_t byte = I2C1->RXDR;
-        
-        // first received data byte is register address
-        // store it and move to next state
-        if (g_i2c_ptr->state == 1)
-        {
-            g_i2c_ptr->ptr   = byte;
-            g_i2c_ptr->state = 2;   
-        }
-        // other received data are written into incrementing address pointer
-        else
-        {
-            g_i2c_ptr->buffer[g_i2c_ptr->ptr] = byte;
-            g_i2c_ptr->ptr++;
-
-            g_i2c_ptr->wr_flag = 1;
-        }
-    }
-
-    // sending data to master
-    if (isr & I2C_ISR_TXIS)
-    {
-        I2C1->TXDR = g_i2c_ptr->buffer[g_i2c_ptr->ptr];
-        g_i2c_ptr->ptr++;
-    }
-      
-    // stop received, back to initial state
-    if (isr & I2C_ISR_STOPF) 
-    {
-        I2C1->ICR |= I2C_ICR_STOPCF;
-        
-        g_i2c_ptr->ptr   = 0;
-        g_i2c_ptr->state = 0;   
-    }
-
-    // nack handling
-    if (isr & I2C_ISR_NACKF) 
-    {
-        I2C1->ICR |= I2C_ICR_NACKCF;
-    }
-}
-*/
-
-
-/*
-void I2C1_IRQHandler()
-{
-    //uint32_t isr = I2C1->ISR;
-
-
-    if(LL_I2C_IsActiveFlag_ADDR(I2C1)) 
-    {
-        if(LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_WRITE) 
-        {
-            // Master is writing register index
-            LL_I2C_ClearFlag_ADDR(I2C1);
-            // Prepare to receive 1 byte (the register index)
-
-            g_i2c_ptr->state = 1;
-        } 
-        else 
-        {
-            // Master is reading data
-            LL_I2C_ClearFlag_ADDR(I2C1);
-            // Preload first byte
-            LL_I2C_TransmitData8(I2C1, g_i2c_ptr->buffer[g_i2c_ptr->ptr]);
-        }
-    }
-
-    if(LL_I2C_IsActiveFlag_RXNE(I2C1)) 
-    {
-        // Received one byte (register index)
-        if (g_i2c_ptr->state == 1)
-        {
-            g_i2c_ptr->ptr = LL_I2C_ReceiveData8(I2C1);
-            g_i2c_ptr->state = 2;
-        }
-    }
-
-    if(LL_I2C_IsActiveFlag_TXIS(I2C1)) 
-    {
-        // Master asked for next byte (after first)
-        g_i2c_ptr->ptr++;
-        LL_I2C_TransmitData8(I2C1, g_i2c_ptr->buffer[g_i2c_ptr->ptr]);
-    }
-
-    if(LL_I2C_IsActiveFlag_STOP(I2C1)) 
-    {
-        LL_I2C_ClearFlag_STOP(I2C1);
-        // Reset state if necessary
-
-        g_i2c_ptr->state = 0;
-        g_i2c_ptr->ptr   = 0;
-    }
-
-}
-*/
-
 
 void I2C1_IRQHandler()
 {
@@ -163,7 +18,7 @@ void I2C1_IRQHandler()
             if (LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_READ)
             {
                 //LL_I2C_TransmitData8(I2C1, g_i2c_ptr->buffer[g_i2c_ptr->ptr]); 
-                //g_i2c_ptr->ptr++;
+                //g_i2c_ptr->ptr++;  
             }
             else
             // receive address state
@@ -185,6 +40,7 @@ void I2C1_IRQHandler()
     {
         uint8_t byte = I2C1->RXDR;
 
+        
         // first receive byte is register address
         if (g_i2c_ptr->state == 1)
         {
@@ -193,20 +49,21 @@ void I2C1_IRQHandler()
         }
         else
         {
-            g_i2c_ptr->buffer[g_i2c_ptr->ptr] = byte;
-            g_i2c_ptr->ptr++;
+            //g_i2c_ptr->buffer[g_i2c_ptr->ptr] = byte;
+            //g_i2c_ptr->ptr++;
         }
 
     }
 
     // sending data to master
-    if (LL_I2C_IsActiveFlag_TXE(I2C1))
+    if (LL_I2C_IsActiveFlag_TXIS(I2C1)) 
     {
-        LL_I2C_TransmitData8(I2C1, g_i2c_ptr->buffer[g_i2c_ptr->ptr - 1]); 
+        LL_I2C_TransmitData8(I2C1, g_i2c_ptr->buffer[g_i2c_ptr->ptr]);
         LL_I2C_ClearFlag_TXE(I2C1);
         g_i2c_ptr->ptr++;
     }
-      
+
+
     // stop received, back to initial state
     if (LL_I2C_IsActiveFlag_STOP(I2C1)) 
     {
@@ -222,88 +79,6 @@ void I2C1_IRQHandler()
         LL_I2C_ClearFlag_NACK(I2C1);
     }
 
-}
-
-
-void I2C1_IRQHandlerAAAA(void)
-{
-    /* Check ADDR flag value in ISR register */
-    if (LL_I2C_IsActiveFlag_ADDR(I2C1))
-    {
-        /* Verify the Address Match with the OWN Slave address */
-        if (LL_I2C_GetAddressMatchCode(I2C1) == (I2C_SLAVE_ADDRESS << 1))
-        {
-            /* Verify the transfer direction, a read direction, Slave enters transmitter mode */
-            if (LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_READ)
-            {
-                /* Clear ADDR flag value in ISR register */
-                LL_I2C_ClearFlag_ADDR(I2C1);
-
-                /* Enable Transmit Interrupt */
-                //LL_I2C_EnableIT_TX(I2C1);
-
-                LL_I2C_TransmitData8(I2C1, 160);
-            }
-            else
-            {
-                /* Clear ADDR flag value in ISR register */
-                LL_I2C_ClearFlag_ADDR(I2C1);
-
-                /* Call Error function */
-            }
-        }
-        else
-        {
-            /* Clear ADDR flag value in ISR register */
-            LL_I2C_ClearFlag_ADDR(I2C1);
-
-            /* Call Error function */
-        }
-    }
-    /* Check NACK flag value in ISR register */
-    else if (LL_I2C_IsActiveFlag_NACK(I2C1))
-    {
-        /* End of Transfer */
-        LL_I2C_ClearFlag_NACK(I2C1);
-    }
-    /* Check TXIS flag value in ISR register */
-    else if (LL_I2C_IsActiveFlag_TXIS(I2C1))
-    {
-        /* Call function Slave Ready to Transmit Callback */
-        //Slave_Ready_To_Transmit_Callback();
-
-        LL_I2C_TransmitData8(I2C1, 157);
-
-        // toogle debug led
-        GPIOC->ODR ^= (1 << 6);
-    }
-    /* Check STOP flag value in ISR register */
-    else if (LL_I2C_IsActiveFlag_STOP(I2C1))
-    {
-        /* Clear STOP flag value in ISR register */
-        LL_I2C_ClearFlag_STOP(I2C1);
-
-        /* Check TXE flag value in ISR register */
-        if (!LL_I2C_IsActiveFlag_TXE(I2C1))
-        {
-            /* Flush the TXDR register */
-            LL_I2C_ClearFlag_TXE(I2C1);
-        }
-
-        /* Call function Slave Complete Callback */
-        //Slave_Complete_Callback();
-    }
-    /* Check TXE flag value in ISR register */
-    else if (!LL_I2C_IsActiveFlag_TXE(I2C1))
-    {
-        /* Do nothing */
-        /* This Flag will be set by hardware when the TXDR register is empty */
-        /* If needed, use LL_I2C_ClearFlag_TXE() interface to flush the TXDR register  */
-    }
-    else
-    {
-        /* Call Error function */
-    }
 }
 
 #ifdef __cplusplus
@@ -322,7 +97,7 @@ void I2CSlave::init()
 
     for (unsigned int i = 0; i < I2C_BUFFER_SIZE; i++)
     {
-        buffer[i] = 0;
+        buffer[i] = 77;
     }
     
     this->_i2c_init();
@@ -343,22 +118,6 @@ uint8_t I2CSlave::is_write_flag()
 
 void I2CSlave::_i2c_init() 
 {    
-    /*
-    LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
-
-    // Configure PA9 (SCL) and PA10 (SDA) as alternate function, open-drain, pull-up
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_9, LL_GPIO_MODE_ALTERNATE);
-    LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_9, LL_GPIO_OUTPUT_OPENDRAIN);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_9, LL_GPIO_PULL_UP);
-    LL_GPIO_SetAFPin_8_15(GPIOA, LL_GPIO_PIN_9, LL_GPIO_AF_6);
-
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_10, LL_GPIO_MODE_ALTERNATE);
-    LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_10, LL_GPIO_OUTPUT_OPENDRAIN);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_10, LL_GPIO_PULL_UP);
-    LL_GPIO_SetAFPin_8_15(GPIOA, LL_GPIO_PIN_10, LL_GPIO_AF_6);
-    */
-
-
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
 
     // Configure PB8 (SCL) and PB7 (SDA) as alternate function, open-drain, pull-up
@@ -371,36 +130,6 @@ void I2CSlave::_i2c_init()
     LL_GPIO_SetPinOutputType(GPIOB, LL_GPIO_PIN_8, LL_GPIO_OUTPUT_OPENDRAIN);
     LL_GPIO_SetPinPull(GPIOB, LL_GPIO_PIN_8, LL_GPIO_PULL_UP);
     LL_GPIO_SetAFPin_8_15(GPIOB, LL_GPIO_PIN_8, LL_GPIO_AF_6);
-
-    /*
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
-
-    // Reset and configure I2C
-    //LL_I2C_DeInit(I2C1);
-    LL_I2C_Disable(I2C1);
-
-    LL_I2C_SetOwnAddress1(I2C1, I2C_SLAVE_ADDRESS << 1, LL_I2C_OWNADDRESS1_7BIT);
-    LL_I2C_EnableOwnAddress1(I2C1);
-    LL_I2C_SetMode(I2C1, LL_I2C_MODE_I2C);
-
-    // Set timing for 400kHz (fast-mode), assuming 64 MHz PCLK
-    // Use timing calculator or ST reference for exact value
-    // Below timing is approximate for 400kHz at 64MHz PCLK1
-    //I2C1->TIMINGR = 0x00300F33;
-    I2C1->TIMINGR = 0x30420F13;
-
-
-    // Enable interrupts
-    LL_I2C_EnableIT_ADDR(I2C1);
-    LL_I2C_EnableIT_RX(I2C1);
-    LL_I2C_EnableIT_TX(I2C1);
-    LL_I2C_EnableIT_STOP(I2C1);
-    LL_I2C_EnableIT_NACK(I2C1);
-
-    LL_I2C_Enable(I2C1);
-    NVIC_SetPriority(I2C1_IRQn, 0);
-    NVIC_EnableIRQ(I2C1_IRQn);
-    */
 
 
     
@@ -415,7 +144,7 @@ void I2CSlave::_i2c_init()
 
     LL_I2C_InitTypeDef I2C_InitStruct = {0};
 
-
+    // init i2c into slave mode for 400kHz with 64MHz HSI
     I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
     I2C_InitStruct.Timing = 0x00303D5B;
     I2C_InitStruct.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
@@ -428,7 +157,7 @@ void I2CSlave::_i2c_init()
     LL_I2C_SetOwnAddress2(I2C1, 0, LL_I2C_OWNADDRESS2_NOMASK);
     LL_I2C_DisableOwnAddress2(I2C1);
     LL_I2C_DisableGeneralCall(I2C1);
-    LL_I2C_EnableClockStretching(I2C1);
+    //LL_I2C_EnableClockStretching(I2C1);
 
 
 
@@ -444,7 +173,8 @@ void I2CSlave::_i2c_init()
 
     //LL_I2C_EnableIT_RX(I2C1);
     LL_I2C_EnableIT_TX(I2C1);
-
+    
+    
     LL_I2C_EnableIT_STOP(I2C1);
-    //LL_I2C_EnableIT_NACK(I2C1);
+    LL_I2C_EnableIT_NACK(I2C1);
 }

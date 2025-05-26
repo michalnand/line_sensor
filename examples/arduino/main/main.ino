@@ -21,30 +21,45 @@ uint16_t read_who_am_i()
   Wire.beginTransmission(LS_I2C_ADDR);
   Wire.write(LS_WHOAMI_REG);
 
-  Wire.endTransmission(false);
-  Wire.requestFrom(LS_I2C_ADDR, 2);
+  Wire.endTransmission(true);
+  Wire.requestFrom(LS_I2C_ADDR, 1);
 
-  uint16_t res_h = Wire.read();
-  uint16_t res_l = Wire.read();
-
-  return (res_h<<8)|res_l;
+  return Wire.read();
 }
 
-  /*
-  if (Wire.available()) 
+
+#define NUM_DATA_REGS 4
+
+
+
+
+void read_data_single(unsigned char adr)
+{
+  unsigned char data[NUM_DATA_REGS];
+
+  for (uint8_t i = 0; i < NUM_DATA_REGS; i++)
   {
-    uint8_t result = Wire.read();
-    return result;
+    Wire.beginTransmission(LS_I2C_ADDR);
+    Wire.write(adr + i);
+
+    Wire.endTransmission(false);
+    Wire.requestFrom(LS_I2C_ADDR, 1);
+
+    data[i] = Wire.read();
   }
 
-  return 0xff;
+  Serial.print("readed data single : ");
+  for (uint8_t i = 0; i < NUM_DATA_REGS; i++)
+  {
+      Serial.print((int)data[i]);
+  }
+  
+  Serial.println();
 }
-*/
 
 
-#define NUM_DATA_REGS 20
 
-void read_data(unsigned char adr)
+void read_data_burst(unsigned char adr)
 {
   unsigned char data[NUM_DATA_REGS];
 
@@ -58,51 +73,20 @@ void read_data(unsigned char adr)
     data[i] = Wire.read();
   }
 
+  Serial.print("readed data burst : ");
+  for (uint8_t i = 0; i < NUM_DATA_REGS; i++)
+  {
+      Serial.print((int)data[i]);
+  }
+
+  Serial.println();
 }
 
 void setup() 
 {
   Serial.begin(9600);
-  Serial.print("initialising\n");
-
-
-  uint16_t result = read_who_am_i(); 
-
-  Serial.print("who am i reg : ");
-  Serial.println(result, HEX);
-
+  Serial.print("initialising device\n");
  
-
-  /*
-  // LED drive mode example
-
-  // set LED mode OFF
-  Wire.beginTransmission(LS_I2C_ADDR);
-  Wire.write(LS_CONFIG0_REG);
-  Wire.write(0x00);
-  Wire.endTransmission();
-
-  delay(500);
-
-
-  // set LED mode ON
-  Wire.beginTransmission(LS_I2C_ADDR);
-  Wire.write(LS_CONFIG0_REG);
-  Wire.write(0x01);
-  Wire.endTransmission();
-
-  delay(500);
-
-
-  // set LED mode alternate
-  Wire.beginTransmission(LS_I2C_ADDR);
-  Wire.write(LS_CONFIG0_REG);
-  Wire.write(0x02);
-  Wire.endTransmission();
-
-  delay(500);
-  */
-
 
   // put your setup code here, to run once:
   pinMode(LED_BUILTIN, OUTPUT);
@@ -117,11 +101,16 @@ void loop()
   digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
   delay(100);   
 
-  //read_data(LS_LED_ON_RAW_REG);
-
+  
   char result = read_who_am_i();
 
   Serial.print("who am i reg : ");
   Serial.println(result, HEX);
+
+  /*
+  read_data_single(100);
+  read_data_burst(100);
+  Serial.println();
+  */
 
 }

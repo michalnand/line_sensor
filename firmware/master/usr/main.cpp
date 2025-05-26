@@ -19,11 +19,12 @@ uint8_t read_who_am_i()
     return i2c.read_reg(LS_I2C_ADDR<<1, LS_WHOAMI_REG);
 }
 
+
+
 void read_data_burst(uint16_t *result_ptr, uint8_t adr)
 {
     uint8_t buffer[2*LS_DATA_SIZE];
 
-    
     i2c.read_reg_multi(LS_I2C_ADDR<<1, adr, buffer, 2*LS_DATA_SIZE);
 
     for (unsigned int i = 0; i < LS_DATA_SIZE; i++)
@@ -35,7 +36,6 @@ void read_data_burst(uint16_t *result_ptr, uint8_t adr)
         result_ptr[i] = tmp;
     }
 }
-
 
 
 void read_data_single(uint16_t *result_ptr, uint8_t adr)
@@ -60,6 +60,52 @@ void print_data(uint16_t *result_ptr)
     }
 
     terminal << "\n";
+}
+
+
+void read_test_single(uint8_t adr)
+{
+    uint8_t buffer[4];  
+
+
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        buffer[i] = i2c.read_reg(LS_I2C_ADDR<<1, adr + i);
+    }
+
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        terminal << (int)buffer[i] << " ";
+    }   
+
+    terminal << "\n";
+
+
+    oled.put_info("0 ", buffer[0], 3 + 0);
+    oled.put_info("1 ", buffer[1], 3 + 1);
+    oled.put_info("2 ", buffer[2], 3 + 2);
+    oled.put_info("3 ", buffer[3], 3 + 3);
+}
+
+void read_test_burst(uint8_t adr)
+{
+    uint8_t buffer[4];  
+
+
+    i2c.read_reg_multi(LS_I2C_ADDR<<1, adr, buffer, 4);
+
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        terminal << (int)buffer[i] << " ";
+    }   
+
+    terminal << "\n";
+
+
+    oled.put_info("0 ", buffer[0], 3 + 0);
+    oled.put_info("1 ", buffer[1], 3 + 1);
+    oled.put_info("2 ", buffer[2], 3 + 2);
+    oled.put_info("3 ", buffer[3], 3 + 3);
 }
 
 
@@ -91,28 +137,75 @@ int main()
 
         oled.put_info("id  ", who_am_i, 0);
         terminal << "who am i " << who_am_i << "\n";
+        
+        {
+            uint32_t time_start = timer.get_time();
+            uint32_t n_mea = 10;
+            for (unsigned int i = 0; i < n_mea; i++)
+            {
+                read_data_single(result_ptr, LS_DIF_FIL_REG);
+            }
+            uint32_t time_stop = timer.get_time();
+
+            uint32_t fps = (n_mea*1000)/(time_stop - time_start);
+
+            oled.put_info("fps single ", fps, 1);
+            terminal << "fps single " << fps << "\n";
+        }
 
 
-        read_data_burst(result_ptr, LS_RAW_OFF_REG);
+        {
+            uint32_t time_start = timer.get_time();
+            uint32_t n_mea = 10;
+            for (unsigned int i = 0; i < n_mea; i++)
+            {
+                read_data_burst(result_ptr, LS_DIF_FIL_REG);
+            }
+            uint32_t time_stop = timer.get_time();
+
+            uint32_t fps = (n_mea*1000)/(time_stop - time_start);
+
+            oled.put_info("fps burst ", fps, 2);
+            terminal << "fps burst " << fps << "\n";
+        }
+
+        /*
+        read_data_single(result_ptr, LS_RAW_OFF_REG);
         print_data(result_ptr);
 
-        read_data_burst(result_ptr, LS_RAW_ON_REG);
+        read_data_single(result_ptr, LS_RAW_ON_REG);
         print_data(result_ptr);
 
 
-        read_data_burst(result_ptr, LS_FIL_OFF_REG);
+        read_data_single(result_ptr, LS_FIL_OFF_REG);
         print_data(result_ptr);
 
-        read_data_burst(result_ptr, LS_FIL_ON_REG);
+        read_data_single(result_ptr, LS_FIL_ON_REG);
         print_data(result_ptr);
 
 
-        read_data_burst(result_ptr, LS_DIF_RAW_REG);
+        read_data_single(result_ptr, LS_DIF_RAW_REG);
+        print_data(result_ptr);
+
+        read_data_single(result_ptr, LS_DIF_FIL_REG);
+        print_data(result_ptr);
+        */
+
+        
+        /*
+        read_data_single(result_ptr, LS_DIF_FIL_REG);
         print_data(result_ptr);
 
         read_data_burst(result_ptr, LS_DIF_FIL_REG);
         print_data(result_ptr);
+        */
+        
 
+        read_test_single(100);
+        timer.delay_ms(800);
+        
+        read_test_burst(100);
+        timer.delay_ms(800);
 
      
 
