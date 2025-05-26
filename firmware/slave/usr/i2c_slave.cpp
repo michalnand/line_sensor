@@ -7,12 +7,14 @@ extern "C" {
 
 I2CSlave *g_i2c_ptr;
 
+
+/*
 void I2C1_IRQHandler()
 {
     // Address matched    
     if (LL_I2C_IsActiveFlag_ADDR(I2C1))
     {
-        /* Verify the Address Match with the OWN Slave address */
+        // Verify the Address Match with the OWN Slave address
         if (LL_I2C_GetAddressMatchCode(I2C1) == (I2C_SLAVE_ADDRESS << 1))
         {
             if (LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_READ)
@@ -32,8 +34,6 @@ void I2C1_IRQHandler()
        
         LL_I2C_ClearFlag_ADDR(I2C1);
     }       
-
-    
 
     // receiving from master
     if (LL_I2C_IsActiveFlag_RXNE(I2C1)) 
@@ -78,7 +78,90 @@ void I2C1_IRQHandler()
     {
         LL_I2C_ClearFlag_NACK(I2C1);
     }
+}
+*/
 
+
+
+
+
+
+
+
+void I2C1_IRQHandler(void)
+{
+  /* Check ADDR flag value in ISR register */
+  if (LL_I2C_IsActiveFlag_ADDR(I2C1))
+  {
+    /* Verify the Address Match with the OWN Slave address */
+    if (LL_I2C_GetAddressMatchCode(I2C1) == (I2C_SLAVE_ADDRESS << 1))
+    {
+      /* Verify the transfer direction, a read direction, Slave enters transmitter mode */
+      if (LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_READ)
+      {
+        /* Clear ADDR flag value in ISR register */
+        LL_I2C_ClearFlag_ADDR(I2C1);
+
+        /* Enable Transmit Interrupt */
+        LL_I2C_EnableIT_TX(I2C1);
+      }
+      else
+      {
+        /* Clear ADDR flag value in ISR register */
+        LL_I2C_ClearFlag_ADDR(I2C1);
+
+        /* Call Error function */
+        //Error_Callback();
+      }
+    }
+    else
+    {
+      /* Clear ADDR flag value in ISR register */
+      LL_I2C_ClearFlag_ADDR(I2C1);
+
+      /* Call Error function */
+      //Error_Callback();
+    }
+  }
+  /* Check NACK flag value in ISR register */
+  else if (LL_I2C_IsActiveFlag_NACK(I2C1))
+  {
+    /* End of Transfer */
+  LL_I2C_ClearFlag_NACK(I2C1);
+  }
+  /* Check TXIS flag value in ISR register */
+  else if (LL_I2C_IsActiveFlag_TXIS(I2C1))
+  {
+    /* Call function Slave Ready to Transmit Callback */
+    //Slave_Ready_To_Transmit_Callback();
+
+    LL_I2C_TransmitData8(I2C1, 171);
+  }
+  /* Check STOP flag value in ISR register */
+  else if (LL_I2C_IsActiveFlag_STOP(I2C1))
+  {
+    /* Clear STOP flag value in ISR register */
+    LL_I2C_ClearFlag_STOP(I2C1);
+
+    /* Check TXE flag value in ISR register */
+    if (!LL_I2C_IsActiveFlag_TXE(I2C1))
+    {
+      /* Flush the TXDR register */
+      LL_I2C_ClearFlag_TXE(I2C1);
+    }
+  }
+  /* Check TXE flag value in ISR register */
+  else if (!LL_I2C_IsActiveFlag_TXE(I2C1))
+  {
+    /* Do nothing */
+    /* This Flag will be set by hardware when the TXDR register is empty */
+    /* If needed, use LL_I2C_ClearFlag_TXE() interface to flush the TXDR register  */
+  }
+  else
+  {
+    /* Call Error function */
+    //Error_Callback();
+  }
 }
 
 #ifdef __cplusplus
