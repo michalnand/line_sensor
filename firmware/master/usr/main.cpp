@@ -137,7 +137,8 @@ int main()
 
         oled.put_info("id  ", who_am_i, 0);
         terminal << "who am i " << who_am_i << "\n";
-        
+
+        led = 0;
         {
             uint32_t time_start = timer.get_time();
             uint32_t n_mea = 10;
@@ -168,6 +169,7 @@ int main()
             oled.put_info("fps burst ", fps, 2);
             terminal << "fps burst " << fps << "\n";
         }
+        
 
         /*
         read_data_single(result_ptr, LS_RAW_OFF_REG);
@@ -202,18 +204,14 @@ int main()
         
 
         read_test_single(100);
-        timer.delay_ms(800);
+        timer.delay_ms(900);
         
         read_test_burst(100);
-        timer.delay_ms(800);
+        timer.delay_ms(900);
 
      
 
         terminal << "\n\n";
-        
-        led = 0;
-
-        timer.delay_ms(300);
     }
     
     return 0;
