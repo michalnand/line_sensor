@@ -9,177 +9,6 @@ I2CSlave *g_i2c_ptr;
 
 
 
-void asdsaI2C1_IRQHandlerAAAA()
-{
-    // Address matched    
-    if (LL_I2C_IsActiveFlag_ADDR(I2C1))
-    {
-        // Verify the Address Match with the OWN Slave address
-        if (LL_I2C_GetAddressMatchCode(I2C1) == (I2C_SLAVE_ADDRESS << 1))
-        {
-            if (LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_READ)
-            {
-                //LL_I2C_TransmitData8(I2C1, g_i2c_ptr->buffer[g_i2c_ptr->ptr]); 
-                //g_i2c_ptr->ptr++;  
-            }
-            else
-            // receive address state
-            {
-                g_i2c_ptr->state = 1;
-            }
-
-            // toogle debug led
-            GPIOC->ODR ^= (1 << 6);
-        }
-       
-        LL_I2C_ClearFlag_ADDR(I2C1);
-    }       
-
-    // receiving from master
-    if (LL_I2C_IsActiveFlag_RXNE(I2C1)) 
-    {
-        uint8_t byte = I2C1->RXDR;
-
-        // first receive byte is register address
-        if (g_i2c_ptr->state == 1)
-        {
-            g_i2c_ptr->ptr   = byte;
-            g_i2c_ptr->state = 2;
-        }
-        else
-        {
-            g_i2c_ptr->buffer[g_i2c_ptr->ptr] = byte;
-            g_i2c_ptr->ptr++;
-        }
-
-    }
-
-    // sending data to master
-    if (LL_I2C_IsActiveFlag_TXIS(I2C1)) 
-    {
-        LL_I2C_TransmitData8(I2C1, g_i2c_ptr->buffer[g_i2c_ptr->ptr]);
-        LL_I2C_ClearFlag_TXE(I2C1);
-        g_i2c_ptr->ptr++;
-    }
-
-
-    // stop received, back to initial state
-    if (LL_I2C_IsActiveFlag_STOP(I2C1)) 
-    {
-        LL_I2C_ClearFlag_STOP(I2C1);
-        
-        g_i2c_ptr->ptr   = 0;
-        g_i2c_ptr->state = 0;   
-    }
-
-    // nack handling
-    if (LL_I2C_IsActiveFlag_NACK(I2C1)) 
-    {
-        LL_I2C_ClearFlag_NACK(I2C1);
-    }
-}
-
-
-
-
-
-
-
-
-
-void AAAA_adsI2C1_IRQHandlerBBBB(void)
-{
-    if (LL_I2C_IsActiveFlag_ADDR(I2C1))
-    {
-        if (LL_I2C_GetAddressMatchCode(I2C1) == (I2C_SLAVE_ADDRESS << 1))
-        {
-            // valdiate if master want's read data
-            if (LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_READ)
-            {
-                /* Enable Transmit Interrupt */
-                LL_I2C_EnableIT_TX(I2C1);
-            }
-            else
-            {
-                /*
-                if (g_i2c_ptr->state == 0)
-                {
-                    g_i2c_ptr->state = 1;
-                }
-                */
-            }
-        }   
-       
-
-        LL_I2C_ClearFlag_ADDR(I2C1);
-    }
-    
-    if (LL_I2C_IsActiveFlag_RXNE(I2C1)) 
-    {
-        uint8_t byte = I2C1->RXDR;
-
-        // first receive byte is register address
-        if (g_i2c_ptr->state == 0)
-        {
-            g_i2c_ptr->ptr   = byte;    
-            g_i2c_ptr->state = 1;
-        }
-        else
-        {
-            //g_i2c_ptr->buffer[g_i2c_ptr->ptr] = byte;
-            g_i2c_ptr->ptr++;
-        }
-    }
-
-    /* Check TXIS flag value in ISR register */
-    if (LL_I2C_IsActiveFlag_TXIS(I2C1))
-    {
-        /* Call function Slave Ready to Transmit Callback */
-        //Slave_Ready_To_Transmit_Callback();
-
-        //LL_I2C_TransmitData8(I2C1, 123);
-
-        LL_I2C_TransmitData8(I2C1, g_i2c_ptr->buffer[g_i2c_ptr->ptr]);
-        //LL_I2C_ClearFlag_TXE(I2C1);
-        g_i2c_ptr->ptr++;
-    }
-
-
-
-
-    /* Check STOP flag value in ISR register */
-    if (LL_I2C_IsActiveFlag_STOP(I2C1))
-    {
-        /* Clear STOP flag value in ISR register */
-        LL_I2C_ClearFlag_STOP(I2C1);
-
-        LL_I2C_DisableIT_TX(I2C1);
-
-        /* Check TXE flag value in ISR register */
-        if (!LL_I2C_IsActiveFlag_TXE(I2C1))
-        {
-            /* Flush the TXDR register */
-            LL_I2C_ClearFlag_TXE(I2C1);
-        }
-
-        // initial state
-        g_i2c_ptr->ptr   = 0;
-        g_i2c_ptr->state = 0;   
-    }
-
-
-     // nack handling
-     if (LL_I2C_IsActiveFlag_NACK(I2C1)) 
-     {
-         LL_I2C_ClearFlag_NACK(I2C1);
-     }
- 
-}
-
-
-
-
-
 
 
 void I2C1_IRQHandler()
@@ -201,11 +30,13 @@ void I2C1_IRQHandler()
             // receive address state
             {
                 g_i2c_ptr->state = 1;
-            }
-
+            }   
         }
        
         LL_I2C_ClearFlag_ADDR(I2C1);
+
+        // toogle debug led
+        GPIOC->ODR ^= (1 << 6);
     }       
 
     // receiving from master
@@ -254,9 +85,6 @@ void I2C1_IRQHandler()
         // reset to initial state        
         g_i2c_ptr->ptr   = 0;
         g_i2c_ptr->state = 0;   
-
-        // toogle debug led
-        GPIOC->ODR ^= (1 << 6);
     }
 
     // nack handling
@@ -284,7 +112,7 @@ void I2CSlave::init()
 
     for (unsigned int i = 0; i < I2C_BUFFER_SIZE; i++)
     {
-        buffer[i] = 100 + i;
+        buffer[i] = 0;
     }
     
     this->_i2c_init();
@@ -342,52 +170,6 @@ void I2CSlave::_i2c_init()
     GPIO_InitStruct.Alternate = LL_GPIO_AF_6;
     LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-
-    /*
-    // enable I2C1 clock
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
-
-    LL_I2C_Disable(I2C1);
-
-    // interrupt with hignest priority
-    NVIC_SetPriority(I2C1_IRQn, 0);
-    NVIC_EnableIRQ(I2C1_IRQn);
-
-    LL_I2C_InitTypeDef I2C_InitStruct = {0};
-
-    // init i2c into slave mode for 400kHz with 64MHz HSI
-    I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
-    I2C_InitStruct.Timing = 0x00303D5B;
-    I2C_InitStruct.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
-    I2C_InitStruct.DigitalFilter = 2;
-    I2C_InitStruct.OwnAddress1 = (I2C_SLAVE_ADDRESS << 1);
-    I2C_InitStruct.TypeAcknowledge = LL_I2C_ACK;
-    I2C_InitStruct.OwnAddrSize = (I2C_SLAVE_ADDRESS << 1);
-    LL_I2C_Init(I2C1, &I2C_InitStruct);
-    LL_I2C_EnableAutoEndMode(I2C1);
-    LL_I2C_SetOwnAddress2(I2C1, 0, LL_I2C_OWNADDRESS2_NOMASK);
-    LL_I2C_DisableOwnAddress2(I2C1);
-    LL_I2C_DisableGeneralCall(I2C1);
-    //LL_I2C_EnableClockStretching(I2C1);
-
-
-
-    uint32_t timing = 0;
-    timing = __LL_I2C_CONVERT_TIMINGS(0x0, 0xC, 0x0, 0x21, 0x6C);
-    LL_I2C_SetTiming(I2C1, timing);
-
-    LL_I2C_SetOwnAddress1(I2C1, (I2C_SLAVE_ADDRESS << 1), LL_I2C_OWNADDRESS1_7BIT);
-    LL_I2C_EnableOwnAddress1(I2C1);
-
-    // i2c interrupts
-    LL_I2C_EnableIT_ADDR(I2C1);
-
-    //LL_I2C_EnableIT_RX(I2C1);
-    //LL_I2C_EnableIT_TX(I2C1);
-
-    LL_I2C_EnableIT_STOP(I2C1);
-    LL_I2C_EnableIT_NACK(I2C1);
-    */
 
     
     LL_I2C_InitTypeDef I2C_InitStruct = {0};

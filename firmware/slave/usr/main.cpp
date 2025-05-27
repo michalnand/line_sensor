@@ -132,10 +132,10 @@ int main()
     i2c.buffer[LS_CONFIG0_REG] = LED_ALTERNATE;
     i2c.buffer[LS_FILTER_REG]  = 7;  
 
-    i2c.buffer[100] = 37;
-    i2c.buffer[101] = 14;
-    i2c.buffer[102] = 15;
-    i2c.buffer[103] = 91;    
+    i2c.buffer[200] = 37;
+    i2c.buffer[201] = 14;
+    i2c.buffer[202] = 15;
+    i2c.buffer[203] = 91;    
 
     while (1)
     {
@@ -178,7 +178,7 @@ int main()
         update_regs(i2c.buffer, LS_DIF_FIL_REG, line_sensor.led_dif_fil_result);
         */
 
-        /*
+        
         debug_fil_regs(i2c.buffer, LS_RAW_OFF_REG);
         debug_fil_regs(i2c.buffer, LS_RAW_ON_REG);
         
@@ -187,7 +187,7 @@ int main()
   
         debug_fil_regs(i2c.buffer, LS_DIF_RAW_REG);
         debug_fil_regs(i2c.buffer, LS_DIF_FIL_REG);
-        */
+        
 
         // wait for next event
         __asm("wfi");

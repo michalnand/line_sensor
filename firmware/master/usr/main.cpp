@@ -139,6 +139,8 @@ int main()
         terminal << "who am i " << who_am_i << "\n";
 
         led = 0;
+
+    
         {
             uint32_t time_start = timer.get_time();
             uint32_t n_mea = 10;
@@ -170,46 +172,35 @@ int main()
             terminal << "fps burst " << fps << "\n";
         }
         
-
-        /*
-        read_data_single(result_ptr, LS_RAW_OFF_REG);
-        print_data(result_ptr);
-
-        read_data_single(result_ptr, LS_RAW_ON_REG);
-        print_data(result_ptr);
-
-
-        read_data_single(result_ptr, LS_FIL_OFF_REG);
-        print_data(result_ptr);
-
-        read_data_single(result_ptr, LS_FIL_ON_REG);
-        print_data(result_ptr);
-
-
-        read_data_single(result_ptr, LS_DIF_RAW_REG);
-        print_data(result_ptr);
-
-        read_data_single(result_ptr, LS_DIF_FIL_REG);
-        print_data(result_ptr);
-        */
-
         
-        /*
-        read_data_single(result_ptr, LS_DIF_FIL_REG);
+        read_data_burst(result_ptr, LS_RAW_OFF_REG);
+        print_data(result_ptr);
+
+        read_data_burst(result_ptr, LS_RAW_ON_REG);
+        print_data(result_ptr);
+
+
+        read_data_burst(result_ptr, LS_FIL_OFF_REG);
+        print_data(result_ptr);
+
+        read_data_burst(result_ptr, LS_FIL_ON_REG);
+        print_data(result_ptr);
+
+
+        read_data_burst(result_ptr, LS_DIF_RAW_REG);
         print_data(result_ptr);
 
         read_data_burst(result_ptr, LS_DIF_FIL_REG);
         print_data(result_ptr);
+        
+        /*
+        read_test_single(200);
+        timer.delay_ms(900);
+        
+        read_test_burst(200);
         */
-        
-
-        read_test_single(100);
-        timer.delay_ms(900);
-        
-        read_test_burst(100);
         timer.delay_ms(900);
 
-     
 
         terminal << "\n\n";
     }
