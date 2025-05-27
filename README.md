@@ -16,8 +16,6 @@ TODO
 ```c++
 #include <Wire.h>
 
-
-
 // slave address
 #define LS_I2C_ADDR       ((uint8_t)0x42)
 
@@ -42,7 +40,6 @@ TODO
 #define LS_DATA_SIZE      ((uint8_t)10)
 
 
-
 /*
    validate if device is connected and responding
    must returns value WHO_AM_I_VALUE (171 dec)
@@ -57,8 +54,6 @@ uint8_t read_who_am_i()
 
   return Wire.read();
 }
-
-
 
 
 /*
@@ -98,7 +93,16 @@ void print_data(uint16_t *result_buffer)
   Serial.println();
 }
 
+
+
 uint16_t sensor_reading[LS_DATA_SIZE];
+
+void setup() 
+{
+  Serial.begin(9600);
+  Serial.print("initialising device\n");
+}
+
 
 void loop() 
 {
