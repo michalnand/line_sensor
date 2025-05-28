@@ -22,6 +22,15 @@
 #define LS_DIF_FIL_REG    ((uint8_t)0x68)  //base + 5*20
 
 
+//statistics
+#define LS_STATS_0_REG    ((uint8_t)0x7c)  //mean value, 16bit
+#define LS_STATS_1_REG    ((uint8_t)0x7e)  //var value, 16bit
+#define LS_STATS_2_REG    ((uint8_t)0x80)  //min value, 16bit
+#define LS_STATS_3_REG    ((uint8_t)0x82)  //max value, 16bit
+
+
+
+
 #define WHO_AM_I_VALUE    ((uint8_t)171)
 #define LS_DATA_SIZE      ((uint8_t)10)
 
@@ -40,6 +49,23 @@ uint8_t read_who_am_i()
   Wire.requestFrom(LS_I2C_ADDR, (uint8_t)1);
 
   return Wire.read();
+}
+
+
+uint16_t read_16bit_reg(uint8_t adr)
+{
+  Wire.beginTransmission(LS_I2C_ADDR);
+  Wire.write((uint8_t)adr);
+
+  Wire.endTransmission(false);  
+  Wire.requestFrom(LS_I2C_ADDR, (uint8_t)2);
+
+  uint16_t tmp_h = Wire.read();
+  uint16_t tmp_l = Wire.read();
+
+  uint16_t result = (tmp_h << 8)|tmp_l;
+
+  return result;
 }
 
 
@@ -87,22 +113,60 @@ void setup()
   Serial.begin(9600);
   Serial.print("initialising device\n");
  
-  // put your setup code here, to run once:
   pinMode(LED_BUILTIN, OUTPUT);
+
+  //TODO implement mode changing in slave
+  /* 
+  // set led drive mode to alternate (mode = 2)
+  Wire.beginTransmission(LS_I2C_ADDR);
+  Wire.write(LS_CONFIG0_REG);
+  Wire.write(2);
+  Wire.endTransmission();
+
+  // set low pass filter coeff to 7
+  Wire.beginTransmission(LS_I2C_ADDR);
+  Wire.write(LS_CONFIG0_REG);
+  Wire.write(7);
+  Wire.endTransmission();
+  */
 }
 
 
 uint16_t sensor_reading[LS_DATA_SIZE];
 
-void loop() 
+void loop_all() 
 {
   // check connection, reading who am I register
   uint8_t result = read_who_am_i();
   Serial.print("who am i reg : ");
-  Serial.println((int)result);
+  Serial.println((uint16_t)result);
+
+  /*
+  // reading sensor stats
+  uint16_t mean = read_16bit_reg(LS_STATS_0_REG);
+  uint16_t var = read_16bit_reg(LS_STATS_1_REG);
+  uint16_t min = read_16bit_reg(LS_STATS_2_REG);
+  uint16_t max = read_16bit_reg(LS_STATS_3_REG);
+
+
+  Serial.print("mean : ");
+  Serial.println((uint16_t)mean);
+
+  Serial.print("var : ");
+  Serial.println((uint16_t)var);
+
+  Serial.print("min : ");
+  Serial.println((uint16_t)min);
+
+  Serial.print("max : ");
+  Serial.println((uint16_t)max);
+
+  Serial.println("\n\n");
+  */
 
 
 
+  /*
   // perform 20 measurements, and estimate sensor reading speed
   unsigned long time_start = millis();
   for (unsigned int i = 0; i < 20; i++)
@@ -115,7 +179,7 @@ void loop()
 
   Serial.print("readings per second ");
   Serial.println(rps);
-
+  */
 
 
   // read all data regs and print
@@ -139,13 +203,33 @@ void loop()
   read_data(sensor_reading, LS_DIF_FIL_REG);
   print_data(sensor_reading);
 
-  Serial.println("\n\n");
+  Serial.println("\n\n\n\n");
 
 
 
   digitalWrite(LED_BUILTIN, HIGH);
   delay(100);                     
   digitalWrite(LED_BUILTIN, LOW);
-  delay(400);   
+  delay(100);   
 
 }
+
+
+
+
+
+
+
+void loop() 
+{
+  read_data(sensor_reading, LS_DIF_FIL_REG);
+  print_data(sensor_reading);
+
+
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(5);                     
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(5);   
+
+}
+

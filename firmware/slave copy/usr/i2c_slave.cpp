@@ -36,7 +36,7 @@ void I2C1_IRQHandler()
         LL_I2C_ClearFlag_ADDR(I2C1);
 
         // toogle debug led
-        //GPIOA->ODR ^= (1 << 8);
+        GPIOA->ODR ^= (1 << 8);
     }       
 
     // receiving from master
@@ -57,8 +57,6 @@ void I2C1_IRQHandler()
             g_i2c_ptr->buffer[g_i2c_ptr->ptr] = byte;
             g_i2c_ptr->ptr++;
         }
-
-        g_i2c_ptr->wr_flag = 1;
     }
 
     // sending data to master

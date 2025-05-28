@@ -8,6 +8,28 @@ extern "C" {
 
 LineSensor *g_line_sensor;
 
+/*
+void ADC1_COMP_IRQHandler(void) 
+{
+    if (ADC1->ISR & ADC_ISR_EOC) 
+    {
+        // read conversion result
+        int32_t value = ADC1->DR;
+
+        // process data and move to next channel
+        uint32_t current_channel = g_line_sensor->callback(value);
+
+        // select next channel
+        ADC1->CHSELR = (1U << current_channel);
+
+        // clear EOC flag by writing 1
+        ADC1->ISR |= ADC_ISR_EOC;
+
+        // start next conversion
+        ADC1->CR |= ADC_CR_ADSTART;
+    }
+}
+*/
 
 void ADC1_IRQHandler(void) 
 {
@@ -146,11 +168,6 @@ void LineSensor::_init_vars()
         this->led_dif_result[i]     = 0;
         this->led_dif_fil_result[i] = 0;
     }
-
-    this->mean_result   = 0;
-    this->var_result    = 0;
-    this->min_result    = 0;
-    this->max_result    = 0;
 }
 
 void LineSensor::_gpio_init(void) 
@@ -160,34 +177,15 @@ void LineSensor::_gpio_init(void)
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
 
     // Configure PA0 - PA7 as analog (ADC_IN0 to ADC_IN7)
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_0, LL_GPIO_MODE_ANALOG);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_0, LL_GPIO_PULL_NO);
-
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_1, LL_GPIO_MODE_ANALOG);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_1, LL_GPIO_PULL_NO);
-
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_2, LL_GPIO_MODE_ANALOG);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_2, LL_GPIO_PULL_NO);
-
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_3, LL_GPIO_MODE_ANALOG);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_3, LL_GPIO_PULL_NO);
-
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_4, LL_GPIO_MODE_ANALOG);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_4, LL_GPIO_PULL_NO);
-
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_5, LL_GPIO_MODE_ANALOG);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_5, LL_GPIO_PULL_NO);
-
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_6, LL_GPIO_MODE_ANALOG);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_6, LL_GPIO_PULL_NO);
-
-    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_7, LL_GPIO_MODE_ANALOG);
-    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_7, LL_GPIO_PULL_NO);  
+    for (int pin = LL_GPIO_PIN_0; pin <= LL_GPIO_PIN_7; pin <<= 1) 
+    {
+        LL_GPIO_SetPinMode(GPIOA, pin, LL_GPIO_MODE_ANALOG);
+        LL_GPIO_SetPinPull(GPIOA, pin, LL_GPIO_PULL_NO);
+    }
 
     // Configure PB0, PB1 as analog (ADC_IN8, ADC_IN9)
     LL_GPIO_SetPinMode(GPIOB, LL_GPIO_PIN_0, LL_GPIO_MODE_ANALOG);
     LL_GPIO_SetPinPull(GPIOB, LL_GPIO_PIN_0, LL_GPIO_PULL_NO);
-
     LL_GPIO_SetPinMode(GPIOB, LL_GPIO_PIN_1, LL_GPIO_MODE_ANALOG);
     LL_GPIO_SetPinPull(GPIOB, LL_GPIO_PIN_1, LL_GPIO_PULL_NO);
 
@@ -235,7 +233,7 @@ void LineSensor::_adc_init()
     while (LL_ADC_IsCalibrationOnGoing(ADC1) != 0)
     {
         __asm("nop");
-    }   
+    }
 
 
     LL_ADC_Enable(ADC1);
@@ -295,9 +293,6 @@ uint8_t LineSensor::_lfsr_rnd()
 
 void LineSensor::_processing()
 {
-    // toogle debug led
-    GPIOA->ODR ^= (1 << 8);
-
     // filter results
     int32_t filter_coeff = this->filter_coeff;
             
@@ -312,9 +307,9 @@ void LineSensor::_processing()
     {
         this->led_dif_result[i]     = this->led_off_result[i]       - this->led_on_result[i];
         this->led_dif_fil_result[i] = this->led_off_fil_result[i]   - this->led_on_fil_result[i];
-    }   
+    }
 
-    // clip min max range into 0..4095
+    // clip min max range
     for (unsigned int i = 0; i < SENSORS_COUNT; i++)
     {
         if (this->led_dif_result[i] < 0)
@@ -341,58 +336,4 @@ void LineSensor::_processing()
             this->led_dif_fil_result[i]  = 4095;
         }
     }
-
-    /*
-    // compute statistics
-    int32_t mean_value = 0;
-    for (unsigned int i = 0; i < SENSORS_COUNT; i++)
-    {
-        mean_value+= this->led_dif_fil_result[i];
-    }
-
-    mean_value = mean_value/(int32_t)SENSORS_COUNT;
-
-
-    int32_t var_value = 0;
-    for (unsigned int i = 0; i < SENSORS_COUNT; i++)
-    {
-        int32_t dif = this->led_dif_fil_result[i] - mean_value;
-        if (dif < 0)
-        {
-            dif = -dif;
-        }
-
-        var_value+= dif;
-    }
-
-    var_value = var_value/(int32_t)SENSORS_COUNT;
-
-
-    int32_t min_value = 4095;
-    for (unsigned int i = 0; i < SENSORS_COUNT; i++)
-    {
-        int32_t tmp = this->led_dif_fil_result[i];
-        if (tmp < min_value)
-        {
-            min_value = tmp;
-        }
-    }   
-
-    int32_t max_value = 0;
-    for (unsigned int i = 0; i < SENSORS_COUNT; i++)
-    {   
-        int32_t tmp = this->led_dif_fil_result[i];
-        if (tmp > max_value)
-        {
-           max_value = tmp;
-        }
-    }
-
-
-
-    this->mean_result   = mean_value;
-    this->var_result    = var_value;
-    this->min_result    = min_value;
-    this->max_result    = max_value;
-    */
 }

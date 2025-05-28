@@ -6,7 +6,7 @@
 
 
 #define SENSORS_COUNT           ((uint32_t)10)
-#define SENSORS_WAIT_STATES     ((uint32_t)10)  
+#define SENSORS_WAIT_STATES     ((uint32_t)5)
 
 
 enum LEDModulationMode
@@ -52,23 +52,16 @@ class LineSensor
 
         LEDModulationMode mode;
 
-        
-    public:
-        int16_t led_off_result[SENSORS_COUNT];
-        int16_t led_on_result[SENSORS_COUNT];
-        
-        int16_t led_off_fil_result[SENSORS_COUNT];
-        int16_t led_on_fil_result[SENSORS_COUNT];
-
-        int16_t led_dif_result[SENSORS_COUNT];
-        int16_t led_dif_fil_result[SENSORS_COUNT];
 
     public:
+        int32_t led_off_result[SENSORS_COUNT];
+        int32_t led_on_result[SENSORS_COUNT];
+        
+        int32_t led_off_fil_result[SENSORS_COUNT];
+        int32_t led_on_fil_result[SENSORS_COUNT];
 
-        uint16_t mean_result;
-        uint16_t var_result;
-        uint16_t min_result;
-        uint16_t max_result;
+        int32_t led_dif_result[SENSORS_COUNT];
+        int32_t led_dif_fil_result[SENSORS_COUNT];
 };
 
 

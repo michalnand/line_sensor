@@ -22,12 +22,6 @@
 #define LS_DIF_RAW_REG    ((uint8_t)0x54)  //base + 4*20
 #define LS_DIF_FIL_REG    ((uint8_t)0x68)  //base + 5*20
 
-//statistics
-#define LS_STATS_0_REG    ((uint8_t)0x7c)  //mean value, 16bit
-#define LS_STATS_1_REG    ((uint8_t)0x7e)  //var value, 16bit
-#define LS_STATS_2_REG    ((uint8_t)0x80)  //min value, 16bit
-#define LS_STATS_3_REG    ((uint8_t)0x82)  //max value, 16bit
-
 
 
 
