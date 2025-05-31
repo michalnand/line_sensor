@@ -11,145 +11,79 @@
 TODO
 
 
-# arduino example
-
-```c++
-#include <Wire.h>
-
-// slave address
-#define LS_I2C_ADDR       ((uint8_t)0x42)
-
-// main registers
-#define LS_WHOAMI_REG     ((uint8_t)0x00)  //ID reg, readed as WHO_AM_I_VALUE (0x6A)
-#define LS_CONFIG0_REG    ((uint8_t)0x01)  //config 0, led drive modes
-#define LS_CONFIG1_REG    ((uint8_t)0x02)  //config 1, not used
-#define LS_FILTER_REG     ((uint8_t)0x03)  //filter coeff, 0..255
-
-//data registers
-#define LS_RAW_OFF_REG    ((uint8_t)0x04)  //data starting, base
-#define LS_RAW_ON_REG     ((uint8_t)0x18)  //base + 1*20
-
-#define LS_FIL_OFF_REG    ((uint8_t)0x2c)  //base + 2*20
-#define LS_FIL_ON_REG     ((uint8_t)0x40)  //base + 3*20
-
-#define LS_DIF_RAW_REG    ((uint8_t)0x54)  //base + 4*20
-#define LS_DIF_FIL_REG    ((uint8_t)0x68)  //base + 5*20
 
 
-#define WHO_AM_I_VALUE    ((uint8_t)171)
-#define LS_DATA_SIZE      ((uint8_t)10)
-
-
-/*
-   validate if device is connected and responding
-   must returns value WHO_AM_I_VALUE (171 dec)
-*/
-uint8_t read_who_am_i()
-{
-  Wire.beginTransmission(LS_I2C_ADDR);
-  Wire.write(LS_WHOAMI_REG);
-
-  Wire.endTransmission(true);
-  Wire.requestFrom(LS_I2C_ADDR, (uint8_t)1);
-
-  return Wire.read();
-}
-
-
-/*
-  fill buffer with uint16_t values from sensors,
-  result_buffer : uint16_t, buffer size is LS_DATA_SIZE (10 sensors)
-  adr           : one of the data registers address : LS_RAW_OFF_REG, LS_RAW_ON_REG .. LS_DIF_FIL_REG
-*/
-void read_data(uint16_t *result_buffer, unsigned char adr)
-{
-  Wire.beginTransmission(LS_I2C_ADDR);
-  Wire.write(adr);
-  Wire.endTransmission(false);
-
-  // reading 2bytes per sensor, total 2*LS_DATA_SIZE
-  Wire.requestFrom(LS_I2C_ADDR, (uint8_t)(2*LS_DATA_SIZE));
-  for (uint8_t i = 0; i < LS_DATA_SIZE; i++)
-  {
-    // first read high, then lower byte
-    uint16_t tmp_h = Wire.read();
-    uint16_t tmp_l = Wire.read();
-
-    // combine into single uint16_t value
-    result_buffer[i] = (tmp_h << 8)|tmp_l;
-  }
-}
-
-// debug data print
-void print_data(uint16_t *result_buffer)
-{
-  for (uint8_t i = 0; i < LS_DATA_SIZE; i++)
-  {
-    uint16_t tmp = result_buffer[i];
-    Serial.print(tmp);
-    Serial.print(" ");
-  }
-
-  Serial.println();
-}
-
-
-
-uint16_t sensor_reading[LS_DATA_SIZE];
-
-void setup() 
-{
-  Serial.begin(9600);
-  Serial.print("initialising device\n");
-}
-
-
-void loop() 
-{
-    // check connection, reading who am I register
-    uint8_t result = read_who_am_i();
-    Serial.print("who am i reg : ");
-    Serial.println((int)result);
-
-
-    // read all data regs and print
-    Serial.println("readed data");
-
-    read_data(sensor_reading, LS_RAW_OFF_REG);
-    print_data(sensor_reading);
-
-    read_data(sensor_reading, LS_RAW_ON_REG);
-    print_data(sensor_reading);
-
-    read_data(sensor_reading, LS_FIL_OFF_REG);
-    print_data(sensor_reading);
-
-    read_data(sensor_reading, LS_FIL_ON_REG);
-    print_data(sensor_reading);
-
-    read_data(sensor_reading, LS_DIF_RAW_REG);
-    print_data(sensor_reading);
-
-    read_data(sensor_reading, LS_DIF_FIL_REG);
-    print_data(sensor_reading);
-
-    Serial.println("\n\n");
-
-    delay(500);   
-}
-```
-
-
-# hardware
-
+# hardware basic
 
 ![image](doc/images/top_3d.png)
 ![image](doc/images/dims.png)
-
-![image](doc/images/top.png)
-![image](doc/images/bottom.png)
 ![image](doc/images/board.png)
-![image](doc/images/schem.png)
+
+# hardware slim
+
+![image](doc/images/board_slim.png)
+
+
+
+
+# arduino example - minimal code
+
+link to file : [demo_code](examples/arduino/minimal_test/minimal_test.ino)
+
+## example output 
+
+- device i2c address is 7bit, 0x42
+- in setup, program prints readed  who am I, must be readed as **171** (dec 171) if connected correctly
+- program prints LS_DIF_FIL_REG reading : filtered differences of on / off leds readings
+
+
+```bash
+who am i reg : 171
+0 6 0 0 598 27 3307 3303 3305 3299 
+11 6 0 0 560 3 0 0 0 0 
+0 2 2 0 594 86 20 7 0 0 
+0 3 4 0 594 87 21 7 1 0 
+0 4 2 0 594 88 20 5 1 0 
+11 5 0 0 562 0 0 0 0 0 
+0 3 4 0 596 87 19 7 2 0 
+0 6 4 0 594 86 19 6 2 0 
+```
+
+
+
+# arduino example - full reading
+
+link to file : [demo_code](examples/arduino/full_test/full_test.ino)
+
+## example output
+
+- device i2c address is 7bit, 0x42
+- who am I must be readed as **171** (dec 171)
+- readings per second : arround 1800 .. 2000, with 100kHz default arduino i2c speed
+- readed data :
+  - line 1 : led turned off readings, register LS_RAW_OFF_REG
+  - line 2 : led turned in readings, register LS_RAW_ON_REG
+  - line 3 : led turned off low pass filtered readings, register LS_FIL_OFF_REG
+  - line 4 : led turned in low pass filtered readings, register LS_FIL_ON_REG
+  - line 5 : raw readings difference, register LS_DIF_RAW_REG
+  - line 6 : filtered readings difference, register LS_DIF_FIL_REG
+- in practice, only reading from LS_DIF_FIL_REG (or LS_DIF_RAW_REG) is necessary to estimate line position
+
+
+```bash
+who am i reg : 171
+readings per second 2000
+readed data
+1206 1467 1156 1393 3102 1862 1558 1523 1559 1495 
+1206 1464 1139 1365 815 1351 1501 1515 1567 1280 
+1205 1467 1152 1390 3087 1851 1552 1520 1556 1494 
+1203 1461 1136 1361 810 1349 1501 1515 1563 1280 
+7 7 10 36 2253 464 39 1 0 0 
+0 6 16 30 2269 543 68 17 3 0 
+```
+
+
+
 
 
 # usage
