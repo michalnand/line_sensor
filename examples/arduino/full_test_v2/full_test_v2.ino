@@ -14,24 +14,23 @@
 
   //data registers
   #define LS_RAW_OFF_REG    ((uint8_t)0x04)  //data starting, base
-  #define LS_RAW_ON_REG     ((uint8_t)0x18)  //base + 1*20
+  #define LS_RAW_ON_REG     ((uint8_t)0x20)  //base + 1*28
 
-  #define LS_FIL_OFF_REG    ((uint8_t)0x2c)  //base + 2*20
-  #define LS_FIL_ON_REG     ((uint8_t)0x40)  //base + 3*20
+  #define LS_FIL_OFF_REG    ((uint8_t)0x3c)  //base + 2*28
+  #define LS_FIL_ON_REG     ((uint8_t)0x58)  //base + 3*28
 
-  #define LS_DIF_RAW_REG    ((uint8_t)0x54)  //base + 4*20
-  #define LS_DIF_FIL_REG    ((uint8_t)0x68)  //base + 5*20
+  #define LS_DIF_RAW_REG    ((uint8_t)0x74)  //base + 4*28
+  #define LS_DIF_FIL_REG    ((uint8_t)0x90)  //base + 5*28
 
-
-  //statistics
-  #define LS_STATS_0_REG    ((uint8_t)0x7c)  //mean value, 16bit
-  #define LS_STATS_1_REG    ((uint8_t)0x7e)  //var value, 16bit
-  #define LS_STATS_2_REG    ((uint8_t)0x80)  //min value, 16bit
-  #define LS_STATS_3_REG    ((uint8_t)0x82)  //max value, 16bit
+  //statistics    
+  #define LS_STATS_0_REG    ((uint8_t)0xac)  //mean value, 16bit
+  #define LS_STATS_1_REG    ((uint8_t)0xae)  //var value, 16bit
+  #define LS_STATS_2_REG    ((uint8_t)0xb0)  //min value, 16bit
+  #define LS_STATS_3_REG    ((uint8_t)0xb2)  //max value, 16bit
 
 
   #define WHO_AM_I_VALUE    ((uint8_t)171)
-  #define LS_DATA_SIZE      ((uint8_t)10)
+  #define LS_DATA_SIZE      ((uint8_t)14)
 
 
 
@@ -170,6 +169,6 @@
     digitalWrite(LED_BUILTIN, HIGH);
     delay(100);                     
     digitalWrite(LED_BUILTIN, LOW);
-    delay(100);   
+    delay(1500);   
   }
 
