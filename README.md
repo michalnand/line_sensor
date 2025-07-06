@@ -1,7 +1,7 @@
 # i2c sensor for line follower
 
 - 10x analog readed sensor
-- stm32g041 64MHz arm cortex m0+ mcu
+- stm32g031k8u6 64MHz arm cortex m0+ mcu
 - i2c interface, with FFC cable
 - uart, swdio availible for debug
 
@@ -22,6 +22,10 @@ TODO
 # hardware slim
 
 ![image](doc/images/board_slim.png)
+
+![image](doc/diagrams/line_sensor-soldering_top.png)
+
+![image](doc/diagrams/line_sensor-soldering_bottom.png)
 
 
 
