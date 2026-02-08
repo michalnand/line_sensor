@@ -1,0 +1,282 @@
+#include "drivers.h"
+#include "common.h"
+
+
+
+// line sensor registers
+
+// slave address
+#define LS_I2C_ADDR       ((uint8_t)0x42)
+
+
+// main registers
+#define LS_WHOAMI_REG     ((uint8_t)0x00)  //ID reg, readed as WHO_AM_I_VALUE (0x6A)
+#define LS_CONFIG0_REG    ((uint8_t)0x01)  //config 0, led drive modes
+#define LS_CONFIG1_REG    ((uint8_t)0x02)  //config 1, not used
+#define LS_FILTER_REG     ((uint8_t)0x03)  //filter coeff, 0..255
+
+//data registers
+#define LS_RAW_OFF_REG    ((uint8_t)0x04)  //data starting, base
+#define LS_RAW_ON_REG     ((uint8_t)0x20)  //base + 1*28
+
+#define LS_FIL_OFF_REG    ((uint8_t)0x3c)  //base + 2*28
+#define LS_FIL_ON_REG     ((uint8_t)0x58)  //base + 3*28
+
+#define LS_DIF_RAW_REG    ((uint8_t)0x74)  //base + 4*28
+#define LS_DIF_FIL_REG    ((uint8_t)0x90)  //base + 5*28
+
+//statistics    
+#define LS_STATS_0_REG    ((uint8_t)0xac)  //mean value, 16bit
+#define LS_STATS_1_REG    ((uint8_t)0xae)  //var value, 16bit
+#define LS_STATS_2_REG    ((uint8_t)0xb0)  //min value, 16bit
+#define LS_STATS_3_REG    ((uint8_t)0xb2)  //max value, 16bit
+
+
+#define WHO_AM_I_VALUE    ((uint8_t)171)   // expected value
+#define LS_DATA_SIZE      ((uint8_t)14)   // 10 line sensors + 4 IR distance sensors
+
+
+
+
+
+
+
+Terminal terminal;
+Timer timer;
+
+TI2C<'A', 10, 9, 100> i2c;
+
+#define I2C_TIMING_100KHZ_64MHZ  0x10D27D7E
+
+void i2c_init(void)
+{
+    /* Enable clocks */
+    LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
+
+    /* PA9 = SCL, PA10 = SDA */
+    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_9, LL_GPIO_MODE_ALTERNATE);
+    LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_10, LL_GPIO_MODE_ALTERNATE);
+
+    LL_GPIO_SetAFPin_8_15(GPIOA, LL_GPIO_PIN_9, LL_GPIO_AF_6);
+    LL_GPIO_SetAFPin_8_15(GPIOA, LL_GPIO_PIN_10, LL_GPIO_AF_6);
+
+    LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_9, LL_GPIO_OUTPUT_OPENDRAIN);
+    LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_10, LL_GPIO_OUTPUT_OPENDRAIN);
+
+    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_9, LL_GPIO_PULL_NO);
+    LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_10, LL_GPIO_PULL_NO);
+
+    LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_9, LL_GPIO_SPEED_FREQ_HIGH);
+    LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_10, LL_GPIO_SPEED_FREQ_HIGH);
+
+    /* Reset I2C */
+    LL_I2C_Disable(I2C1);
+    LL_I2C_SetTiming(I2C1, I2C_TIMING_100KHZ_64MHZ);
+    LL_I2C_EnableAutoEndMode(I2C1);
+    LL_I2C_Enable(I2C1);
+}
+
+
+uint8_t i2c_read_reg(uint8_t dev_addr, uint8_t reg_addr)
+{
+    uint8_t data;
+
+    while (LL_I2C_IsActiveFlag_BUSY(I2C1));
+
+    /* Write register address */
+    LL_I2C_HandleTransfer(
+        I2C1,
+        dev_addr,
+        LL_I2C_ADDRSLAVE_7BIT,
+        1,
+        LL_I2C_MODE_SOFTEND,
+        LL_I2C_GENERATE_START_WRITE
+    );
+
+    while (!LL_I2C_IsActiveFlag_TXIS(I2C1));
+    LL_I2C_TransmitData8(I2C1, reg_addr);
+
+    while (!LL_I2C_IsActiveFlag_TC(I2C1));
+
+    /* Read data */
+    LL_I2C_HandleTransfer(
+        I2C1,
+        dev_addr,
+        LL_I2C_ADDRSLAVE_7BIT,
+        1,
+        LL_I2C_MODE_AUTOEND,
+        LL_I2C_GENERATE_START_READ
+    );  
+
+    while (!LL_I2C_IsActiveFlag_RXNE(I2C1));
+    data = LL_I2C_ReceiveData8(I2C1);
+
+    while (!LL_I2C_IsActiveFlag_STOP(I2C1));
+    LL_I2C_ClearFlag_STOP(I2C1);
+
+    return data;
+}
+
+
+void i2c_read_burst(uint8_t dev_addr,
+                    uint8_t start_reg,
+                    uint8_t *buf,
+                    uint16_t len)
+{
+    while (LL_I2C_IsActiveFlag_BUSY(I2C1));
+
+    /* Write register address */
+    LL_I2C_HandleTransfer(
+        I2C1,
+        dev_addr,
+        LL_I2C_ADDRSLAVE_7BIT,
+        1,
+        LL_I2C_MODE_SOFTEND,
+        LL_I2C_GENERATE_START_WRITE
+    );
+
+    while (!LL_I2C_IsActiveFlag_TXIS(I2C1));
+    LL_I2C_TransmitData8(I2C1, start_reg);
+
+    while (!LL_I2C_IsActiveFlag_TC(I2C1));
+
+    /* Read multiple bytes */
+    LL_I2C_HandleTransfer(
+        I2C1,
+        dev_addr,
+        LL_I2C_ADDRSLAVE_7BIT,
+        len,
+        LL_I2C_MODE_AUTOEND,
+        LL_I2C_GENERATE_START_READ
+    );
+
+    for (uint16_t i = 0; i < len; i++)
+    {
+        while (!LL_I2C_IsActiveFlag_RXNE(I2C1));
+        buf[i] = LL_I2C_ReceiveData8(I2C1);
+    }
+
+    while (!LL_I2C_IsActiveFlag_STOP(I2C1));
+    LL_I2C_ClearFlag_STOP(I2C1);
+}
+
+/*
+   validate if device is connected and responding
+   must returns value WHO_AM_I_VALUE (171 dec)
+*/
+uint8_t read_who_am_i()
+{
+    //return i2c.read_reg(LS_I2C_ADDR, LS_WHOAMI_REG);
+
+    return i2c_read_reg(LS_I2C_ADDR<<1, LS_WHOAMI_REG);
+}
+
+
+/*
+  fill buffer with uint16_t values from sensors,
+  result_buffer : uint16_t, buffer size is LS_DATA_SIZE (10 sensors)
+  adr           : one of the data registers address : LS_RAW_OFF_REG, LS_RAW_ON_REG .. LS_DIF_FIL_REG
+*/
+void read_data(uint16_t *result_buffer, unsigned char adr)
+{
+    for (uint8_t i = 0; i < LS_DATA_SIZE; i++)
+    {
+        // first read high, then lower byte
+        //uint16_t tmp_h = i2c.read_reg(LS_I2C_ADDR, adr + 2*i + 0);
+        //uint16_t tmp_l = i2c.read_reg(LS_I2C_ADDR, adr + 2*i + 1);
+        
+        uint16_t tmp_h = i2c_read_reg(LS_I2C_ADDR<<1, adr + 2*i + 0);
+        uint16_t tmp_l = i2c_read_reg(LS_I2C_ADDR<<1, adr + 2*i + 1);
+
+
+        result_buffer[i] = (tmp_h << 8)|tmp_l;
+    }
+
+    return;
+}
+
+
+
+
+// debug data print
+void print_data(uint16_t *result_buffer)
+{
+  for (uint8_t i = 0; i < LS_DATA_SIZE; i++)
+  {
+    uint16_t tmp = result_buffer[i];
+    terminal << tmp << " ";
+  }
+
+  terminal << "\n\n";
+}
+
+int main() 
+{       
+    drivers_init();   
+    uart_init(); 
+
+    terminal << "\n\nuart init done\n";
+
+    timer.init();
+
+    i2c_init();
+    
+    terminal << "i2c init done\n";
+
+    // sensor reset
+    Gpio<'A', 7, GPIO_MODE_OUT> ls_reset_pin;
+    ls_reset_pin = 0;
+    timer.delay_ms(10);
+    ls_reset_pin = 1;
+    timer.delay_ms(20);
+
+    
+    uint16_t sensor_reading[LS_DATA_SIZE];
+
+    while (1)
+    {
+        uint8_t result = read_who_am_i();
+        terminal << "who am i reg : " << (int)result << "\n";
+    
+        // perform 20 measurements, and estimate sensor reading speed
+        uint32_t time_start = timer.get_time();
+        for (unsigned int i = 0; i < 20; i++)
+        {
+            read_data(sensor_reading, LS_DIF_FIL_REG);
+        }
+        uint32_t time_stop = timer.get_time();
+
+        uint32_t rps = ((uint32_t)20*(uint32_t)1000)/(time_stop - time_start);
+
+        terminal << "readings per second " << rps << "\n";
+    
+    
+        terminal << "readed data\n";
+
+        read_data(sensor_reading, LS_RAW_OFF_REG);
+        print_data(sensor_reading);
+
+        read_data(sensor_reading, LS_RAW_ON_REG);
+        print_data(sensor_reading);
+
+        read_data(sensor_reading, LS_FIL_OFF_REG);
+        print_data(sensor_reading);
+
+        read_data(sensor_reading, LS_FIL_ON_REG);
+        print_data(sensor_reading);
+
+        read_data(sensor_reading, LS_DIF_RAW_REG);
+        print_data(sensor_reading);
+
+        read_data(sensor_reading, LS_DIF_FIL_REG);
+        print_data(sensor_reading);
+
+        terminal << "\n\n\n\n";
+
+        timer.delay_ms(200);
+    }
+    
+    
+    return 0;
+}
